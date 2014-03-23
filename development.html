@@ -1,0 +1,455 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>開発 &mdash; Fabric 1.8.1 ドキュメント</title>
+    
+    <link rel="stylesheet" href="_static/rtd.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.8.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/translations.js"></script>
+    <link rel="top" title="Fabric 1.8.1 ドキュメント" href="index.html" />
+    <link rel="next" title="Frequently Asked Questions (FAQ)" href="faq.html" />
+    <link rel="prev" title="インストール" href="installation.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-18486793-1']);
+  _gaq.push(['_setDomainName', '.fabfile.org']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="faq.html" title="Frequently Asked Questions (FAQ)"
+             accesskey="N">次へ</a> |</li>
+        <li class="right" >
+          <a href="installation.html" title="インストール"
+             accesskey="P">前へ</a> |</li>
+        <li><a href="index.html">Fabric 1.8.1 ドキュメント</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="development">
+<h1>開発<a class="headerlink" href="#development" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<p>Fabricの開発チームは <a class="reference external" href="http://bitprophet.org">Jeff Forcier</a>、別名 <tt class="docutils literal"><span class="pre">bitprophet</span></tt> に率いられています。とは言え、他にもたくさんの開発者が <a class="reference external" href="https://github.com/fabric/fabric">GitHubのイシューとプルリクエスト</a>、 <a class="reference internal" href="index.html#irc"><em>IRC</em></a> もしくは <a class="reference external" href="http://lists.nongnu.org/mailman/listinfo/fab-user">メーリングリスト</a> 経由でパッチやアイディアを提供しています。</p>
+<div class="section" id="get-the-code">
+<h2>コードの取得<a class="headerlink" href="#get-the-code" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>Fabricのソースコードの取得に関しての詳細は <a class="reference internal" href="installation.html"><em>インストール</em></a> ページの <a class="reference internal" href="installation.html#source-code-checkouts"><em>ソースコードのチェックアウト</em></a> セクションをご覧ください。</p>
+</div>
+<div class="section" id="contributing">
+<h2>参加協力<a class="headerlink" href="#contributing" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>Fabricに参加協力する方法はたくさんあります:</p>
+<ul class="simple">
+<li><p class="first"><strong>Fabricを使ってフィードバックを送ってください!</strong> これがこのプロジェクトを改善するためのもっとも簡単でもっとも間違いが少なく、もっとも重要な方法です。どのようにFabricを使っていて、どのようにFabricを使いたいのかをお知らせください。(とは言え、アイディアを送るときには、まず <a class="reference external" href="https://github.com/fabric/fabric/issues">チケットトラッカー</a> で検索するようにしてください)</p>
+</li>
+<li><p class="first"><strong>バグを報告してください。</strong> ひとつ上の項目のかなり特別なケースです。もしFabricにバグを見つけたと思ったら、他の人がまだ報告していないか <a class="reference external" href="https://github.com/fabric/fabric/issues">チケットトラッカー</a> で確認して、まだ報告されていなかったらバグを報告してください! 可能なら繰り返し再現可能であることを確認し、環境(Fabricのバージョン、プラットフォーム、バグ発生時に何をしようとしていたかを具体的に)をお知らせください。</p>
+</li>
+<li><p class="first"><strong>パッチや新機能のコードを送ってください。</strong> <a class="reference external" href="https://github.com">Github</a> アカウントを作成し、 <a class="reference external" href="https://github.com/fabric/fabric">Fabricのメインリポジトリ</a> を <a class="reference external" href="http://help.github.com/fork-a-repo/">フォークして</a> <a class="reference external" href="http://help.github.com/send-pull-requests/">プルリクエストを送ってください</a>。</p>
+</li>
+</ul>
+<p>必ずしもすぐには反応できないかもしれませんが、最終的にはすべてのパッチやコードを精査する時間を作るようにして、それらを取り込むか、取り込まない場合はなぜその変更がFabricに向かないかの説明をするようにします。</p>
+<div class="section" id="patch-submission-guidelines">
+<h3>パッチ送付ガイドライン<a class="headerlink" href="#patch-submission-guidelines" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<ul>
+<li><p class="first"><strong>その変更のための新しいGitブランチを作成してください。</strong> 例えば、foo the barsという新しい機能を追加するには次のようにします:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ git checkout master # or the latest release branch -- see below
+$ git pull
+$ git checkout -b foo-the-bars
+&lt;hack hack hack&gt;
+$ git push origin HEAD
+&lt;submit pull request based on your new &#39;foo-the-bars&#39; branch&gt;
+</pre></div>
+</div>
+<p>こうすることにより、もし自分の <tt class="docutils literal"><span class="pre">master</span></tt> ブランチに追加の変更を加えるとしても(もしくはその予定だけだとしても)、メンテナーにとってはずいぶん楽になります。</p>
+<blockquote>
+<div><ul class="simple">
+<li><p class="first">当然の結果として、<strong>同一ブランチ/同一プルリクエスト内に複数の修正/機能追加は行わないようにしてください</strong>! 言い換えると、新しい機能をハッキングしていてその <em>機能</em> を必要としないバグフィックスがあるときは、そのバグフィックスのための <strong>新しい別のブランチとプルリクエストを作成してください</strong>。</p>
+</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first"><strong>バグフィックス</strong> は <strong>最新のリリースブランチ</strong> (例えば <tt class="docutils literal"><span class="pre">1.4</span></tt>、<tt class="docutils literal"><span class="pre">1.5</span></tt> などの最新)から、 <strong>新しい機能</strong> は <strong>master</strong> からブランチを作成してください。もし自分の変更がどのカテゴリーに属するのかわからない場合はIRCもしくはメーリングリストで聞いてください。</p>
+</li>
+<li><p class="first"><strong>ドキュメントを確実に更新してください</strong> &#8211; 最低限、docstringを最新にして、必要なら、 <tt class="docutils literal"><span class="pre">docs/</span></tt> のReSTドキュメントを更新してください。例えば、新しい <tt class="docutils literal"><span class="pre">env.*</span></tt> 設定は <tt class="docutils literal"><span class="pre">docs/usage/env.rst</span></tt> に追加します。</p>
+</li>
+<li><p class="first"><strong>変更履歴を追加してください</strong>。これまでのエントリーのスタイルにそって <tt class="docutils literal"><span class="pre">docs/changelog.rst</span></tt> の一番上に追加します。クレジットが欲しい場合は、ご自分への言及を忘れずに!</p>
+<blockquote>
+<div><ul>
+<li><p class="first">その変更が古いリリースへのバックポート向けの機能やサポートチケットなら、<tt class="docutils literal"><span class="pre">backposted</span></tt> キーワードを含めてください。例えば:</p>
+<div class="highlight-python"><div class="highlight"><pre>* :feature:`123 backported` This is my description...
+</pre></div>
+</div>
+</li>
+<li><p class="first">主要なリリースとして扱われるような &#8220;major&#8221; (大き)なバグフィックスの場合は、 <tt class="docutils literal"><span class="pre">major</span></tt> キーワードを含めてください:</p>
+<div class="highlight-python"><div class="highlight"><pre>* :bug:`123 major` Description here...
+</pre></div>
+</div>
+</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first"><strong>テストをいくらか書くようにしてください</strong>、もし可能なら。ご自分の変更が簡単にテスト可能かどうかを伝えるためには、既存のテストに従うのがたいていは最も簡単で最も優れた方法です。</p>
+</li>
+<li><p class="first"><strong>既存のGithubイシュー</strong> のためのパッチを書く場合は <tt class="docutils literal"><span class="pre">hub</span> <span class="pre">pull-request</span></tt> を**使ってください**。これは必須ではありませんが、メンテナーが楽になります! 具体的にいうと、 <a class="reference external" href="https://github.com/defunkt/hub/#installation">hubをインストール</a> して、 <a class="reference external" href="https://github.com/defunkt/hub/#git-pull-request">hub pull-request</a> を実行します。すると、そのイシューを自分のコードが含まれたプルリクエストに変更します。</p>
+</li>
+</ul>
+</div>
+<div class="section" id="coding-style">
+<h3>コーディングスタイル<a class="headerlink" href="#coding-style" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>Fabricは特に次の項目に関して(これに限定しているわけではありませんが!) <a class="reference external" href="http://www.python.org/dev/peps/pep-0008/">PEP-8</a> の履行に尽力しています:</p>
+<ul class="simple">
+<li><p class="first">すべての行を80文字以下に保つ。これはコード自体だけではなく、ReSTドキュメントにも当てはまります。</p>
+<ul>
+<li><p class="first">長い文字列の改行が困難な場合は例外となります(ソースコードからの <tt class="docutils literal"><span class="pre">print</span></tt> された文字列やドキュメント内の特に長いURLなど)。</p>
+</li>
+</ul>
+</li>
+<li><p class="first">Python標準の4スペース(ソフトタブ)インデントの使用。タブは使わないでください! 8スペースインデントは使わないでください。(さらに言えば、2スペースや3スペースインデントも!)</p>
+</li>
+<li><p class="first">クラス名は <tt class="docutils literal"><span class="pre">CamelCase</span></tt> で、それ以外は <tt class="docutils literal"><span class="pre">lowercase_underscore_separated</span></tt> で。</p>
+</li>
+</ul>
+</div>
+<div class="section" id="communication">
+<h3>コミュニケーション<a class="headerlink" href="#communication" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>そのイシューに既存のチケットトラッカーのチケットがある場合は、そのチケットのコメント内ですべてのコミュニケーションをとるように <strong>してください</strong> 。例えば、GitHub経由でパッチを送る場合、GitHubプルリクエスト <strong>送るのではなく</strong> 、そのチケット内にメモを入れるとわたしたちにとって助かります。</p>
+<p>主要開発者たちはチケットラッカーのすべてのアクティビティのメールを受け取ります。そのため、GitHubやその他を経由する追加の通知は進行を遅くするだけです。</p>
+</div>
+</div>
+<div class="section" id="branching-repository-layout">
+<h2>ブランチ/リポジトリのレイアウト<a class="headerlink" href="#branching-repository-layout" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>Fabricの開発手順はまだ確定しているというわけではありませんが、現在どのようにGitリポジトリを構造化し、マージその他を実行するかについて以下の項目で詳述します。これは主に、リリースされたバージョンではなく特定のGitブランチを追うことを望む方たちとすべての参加協力者の方たちにとって利益になるでしょう。</p>
+<ul class="simple">
+<li><p class="first">わたしたちは「リリースブランチとフィーチャーブランチ」を統合した開発手法を採っています。各マイナーリリース(例えば、0.9、1.0、1.1、1.2など。バージョニングに関しては <a class="reference internal" href="#releases"><em>リリース</em></a> を参照してください)でバグフィックスのためのリリースブランチを持ち、大きな機能開発は中央の <tt class="docutils literal"><span class="pre">master</span></tt> ブランチ と/もしくはその特定の機能用のフィーチャーブランチで行われます(例えばスレッドセーフにするための内部的な改変のためのブランチや、タスク依存のオーバーホールのためのブランチなど)。</p>
+</li>
+<li><p class="first">各リリースは専用のリリースブランチを持ちます。例えば、 <tt class="docutils literal"><span class="pre">0.9</span></tt>、 <tt class="docutils literal"><span class="pre">1.0</span></tt>、 <tt class="docutils literal"><span class="pre">1.1</span></tt> などで、実際のリリースはここでタグ付けされます。例えば、<tt class="docutils literal"><span class="pre">0.9.3</span></tt> や <tt class="docutils literal"><span class="pre">1.0.0</span></tt> などです。</p>
+</li>
+<li><p class="first">新機能の作業は通常はフィーチャーブランチで行われます。命名規則は <tt class="docutils literal"><span class="pre">&lt;ticket</span> <span class="pre">number&gt;-&lt;short-description&gt;</span></tt> です。例えば、 <tt class="docutils literal"><span class="pre">get</span></tt> と <tt class="docutils literal"><span class="pre">put</span></tt> に <tt class="docutils literal"><span class="pre">cd</span></tt> サポートを追加するためのチケット#61は、 <tt class="docutils literal"><span class="pre">61-add-cd-to-get-put</span></tt> と命名されたブランチで開発されました。</p>
+<ul>
+<li>These branches are not intended for public use, and may be cleaned out of
+the repositories periodically. Ideally, no one feature will be in
+development long enough for its branch to become used in production!</li>
+</ul>
+</li>
+<li><p class="first">完了した機能追加は <tt class="docutils literal"><span class="pre">master</span></tt> ブランチへマージされ、新しい機能追加が十分そろったところで新しいリリースブランチが作成されたり、テスト用のプレリリースバージョンを作成するために利用されたり、もしくは単にそのままリリースされたりします。</p>
+</li>
+<li>While we try our best not to commit broken code or change APIs without
+warning, as with many other open-source projects we can only have a guarantee
+of stability in the release branches. Only follow <tt class="docutils literal"><span class="pre">master</span></tt> (or, even worse,
+feature branches!) if you&#8217;re willing to deal with a little pain.</li>
+<li>Conversely, because we try to keep release branches relatively stable, you
+may find it easier to use Fabric from a source checkout of a release branch
+instead of manually upgrading to new released versions. This can provide a
+decent middle ground between stability and the ability to get bugfixes or
+backported features easily.</li>
+<li>The core developers will take care of performing merging/branching on the
+official repositories. Since Git is Git, contributors may of course do
+whatever they wish in their own clones/forks.</li>
+<li>Bugfixes are to be performed on release branches and then merged into
+<tt class="docutils literal"><span class="pre">master</span></tt> so that <tt class="docutils literal"><span class="pre">master</span></tt> is always up-to-date (or nearly so; while it&#8217;s
+not mandatory to merge after every bugfix, doing so at least daily is a good
+idea.)</li>
+<li>Feature branches should periodically merge in changes from
+<tt class="docutils literal"><span class="pre">master</span></tt> so that when it comes time for them to merge back into <tt class="docutils literal"><span class="pre">master</span></tt>
+things aren&#8217;t quite as painful.</li>
+</ul>
+</div>
+<div class="section" id="releases">
+<span id="id2"></span><h2>リリース<a class="headerlink" href="#releases" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>Fabric tries to follow open-source standards and conventions in its release
+tagging, including typical version numbers such as 2.0, 1.2.5, or
+1.2b1. Each release will be marked as a tag in the Git repositories, and
+are broken down as follows:</p>
+<div class="section" id="major">
+<h3>メジャー<a class="headerlink" href="#major" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>Major releases update the first number, e.g. going from 0.9 to 1.0, and
+indicate that the software has reached some very large milestone.</p>
+<p>For example, the 1.0 release signified a commitment to a medium to long term
+API and some significant backwards incompatible (compared to the 0.9 series)
+features. Version 2.0 might indicate a rewrite using a new underlying network
+technology or an overhaul to be more object-oriented.</p>
+<p>Major releases will often be backwards-incompatible with the previous line of
+development, though this is not a requirement, just a usual happenstance.
+Users should expect to have to make at least some changes to their fabfiles
+when switching between major versions.</p>
+</div>
+<div class="section" id="minor">
+<h3>マイナー<a class="headerlink" href="#minor" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>Minor releases, such as moving from 1.0 to 1.1, typically mean that one or more
+new, large features has been added. They are also sometimes used to mark off
+the fact that a lot of bug fixes or small feature modifications have occurred
+since the previous minor release. (And, naturally, some of them will involve
+both at the same time.)</p>
+<p>These releases are guaranteed to be backwards-compatible with all other
+releases containing the same major version number, so a fabfile that works
+with 1.0 should also work fine with 1.1 or even 1.9.</p>
+</div>
+<div class="section" id="bugfix-tertiary">
+<h3>Bugfix/tertiary<a class="headerlink" href="#bugfix-tertiary" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>The third and final part of version numbers, such as the &#8216;3&#8217; in 1.0.3,
+generally indicate a release containing one or more bugfixes, although minor
+feature modifications may (rarely) occur.</p>
+<p>This third number is sometimes omitted for the first major or minor release in
+a series, e.g. 1.2 or 2.0, and in these cases it can be considered an implicit
+zero (e.g. 2.0.0).</p>
+<div class="admonition note">
+<p class="first admonition-title">ノート</p>
+<p class="last">The 0.9 series of development included more significant feature work than
+is typically found in tertiary releases; from 1.0 onwards a more
+traditional approach, as per the above, is used.</p>
+</div>
+</div>
+</div>
+<div class="section" id="support-of-older-releases">
+<h2>古いリリースのサポート<a class="headerlink" href="#support-of-older-releases" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>Major and minor releases do not mark the end of the previous line or lines of
+development:</p>
+<ul class="simple">
+<li>The two most recent minor release branches will continue to receive critical
+bugfixes. For example, if 1.1 were the latest minor release, it and 1.0 would
+get bugfixes, but not 0.9 or earlier; and once 1.2 came out, this window
+would then only extend back to 1.1.</li>
+<li>Depending on the nature of bugs found and the difficulty in backporting them,
+older release lines may also continue to get bugfixes &#8211; but there&#8217;s no
+longer a guarantee of any kind. Thus, if a bug were found in 1.1 that
+affected 0.9 and could be easily applied, a new 0.9.x version <em>might</em> be
+released.</li>
+<li>This policy may change in the future to accommodate more branches, depending
+on development speed.</li>
+</ul>
+<p>We hope that this policy will allow us to have a rapid minor release cycle (and
+thus keep new features coming out frequently) without causing users to feel too
+much pressure to upgrade right away. At the same time, the backwards
+compatibility guarantee means that users should still feel comfortable
+upgrading to the next minor release in order to stay within this sliding
+support window.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+
+
+<h3>Project Versions</h3>
+<ul id="sidebar_versions">
+    
+    
+    <li><a href="/en/1.8.0/">1.8.0</a></li>
+    
+    
+    
+    <li><a href="/en/1.7.0/">1.7.0</a></li>
+    
+    
+    
+    <li><a href="/en/1.6.2/">1.6.2</a></li>
+    
+    
+    
+    <li><a href="/en/1.6.1/">1.6.1</a></li>
+    
+    
+    
+    <li><a href="/en/1.6.0/">1.6.0</a></li>
+    
+    
+    
+    <li><a href="/en/1.5.4/">1.5.4</a></li>
+    
+    
+    
+    <li><a href="/en/1.5.3/">1.5.3</a></li>
+    
+    
+    
+    <li><a href="/en/1.5.2/">1.5.2</a></li>
+    
+    
+    
+    <li><a href="/en/1.5.1/">1.5.1</a></li>
+    
+    
+    
+    <li><a href="/en/1.5.0/">1.5.0</a></li>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</ul>
+
+
+  <h3><a href="index.html">目次</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">開発</a><ul>
+<li><a class="reference internal" href="#get-the-code">コードの取得</a></li>
+<li><a class="reference internal" href="#contributing">参加協力</a><ul>
+<li><a class="reference internal" href="#patch-submission-guidelines">パッチ送付ガイドライン</a></li>
+<li><a class="reference internal" href="#coding-style">コーディングスタイル</a></li>
+<li><a class="reference internal" href="#communication">コミュニケーション</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#branching-repository-layout">ブランチ/リポジトリのレイアウト</a></li>
+<li><a class="reference internal" href="#releases">リリース</a><ul>
+<li><a class="reference internal" href="#major">メジャー</a></li>
+<li><a class="reference internal" href="#minor">マイナー</a></li>
+<li><a class="reference internal" href="#bugfix-tertiary">Bugfix/tertiary</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#support-of-older-releases">古いリリースのサポート</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="installation.html"
+                        title="前の章へ">インストール</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="faq.html"
+                        title="次の章へ">Frequently Asked Questions (FAQ)</a></p>
+  <h3>このページ</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/development.txt"
+           rel="nofollow">ソースコードを表示</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>クイック検索</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="検索" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    モジュール、クラス、または関数名を入力してください
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="faq.html" title="Frequently Asked Questions (FAQ)"
+             >次へ</a> |</li>
+        <li class="right" >
+          <a href="installation.html" title="インストール"
+             >前へ</a> |</li>
+        <li><a href="index.html">Fabric 1.8.1 ドキュメント</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Christian Vest Hansen and Jeffrey E. Forcier.
+      このドキュメントは <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.1 で生成しました。
+    </div>
+  </body>
+</html>

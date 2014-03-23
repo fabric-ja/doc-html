@@ -1,0 +1,411 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>インストール &mdash; Fabric 1.8.1 ドキュメント</title>
+    
+    <link rel="stylesheet" href="_static/rtd.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.8.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/translations.js"></script>
+    <link rel="top" title="Fabric 1.8.1 ドキュメント" href="index.html" />
+    <link rel="next" title="開発" href="development.html" />
+    <link rel="prev" title="概要とチュートリアル" href="tutorial.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-18486793-1']);
+  _gaq.push(['_setDomainName', '.fabfile.org']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="development.html" title="開発"
+             accesskey="N">次へ</a> |</li>
+        <li class="right" >
+          <a href="tutorial.html" title="概要とチュートリアル"
+             accesskey="P">前へ</a> |</li>
+        <li><a href="index.html">Fabric 1.8.1 ドキュメント</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="installation">
+<h1>インストール<a class="headerlink" href="#installation" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<p>Fabricのインストールの一番いい方法は <a class="reference external" href="http://pip.openplans.org">pip</a> (お勧めです)もしくは <a class="reference external" href="http://wiki.python.org/moin/CheeseShopTutorial">easy_install</a> (古いですが動作します)です。例えば:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ pip install fabric
+</pre></div>
+</div>
+<p>また、お使いのオペレーティングシステムのパッケージマネージャーを利用してもいいでしょう。パッケージ名はたいてい <tt class="docutils literal"><span class="pre">fabric</span></tt> もしくは <tt class="docutils literal"><span class="pre">python-fabric</span></tt> です。例えば:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ sudo apt-get install fabric
+</pre></div>
+</div>
+<p>開発版のインストールを望む上級ユーザーは <tt class="docutils literal"><span class="pre">pip</span></tt> を使って最新のマスターブランチを取得できます。(依存のためParamikoの開発版も必要です):</p>
+<div class="highlight-python"><div class="highlight"><pre>$ pip install paramiko==dev
+$ pip install fabric==dev
+</pre></div>
+</div>
+<p>もしくは、デバッグやハッキングのために編集可能なバージョンをインストールしたい場合は、 <a class="reference internal" href="#downloads"><em>downloaded</em></a> もしくは <a class="reference internal" href="#source-code-checkouts"><em>cloned</em></a> したソースコード内で <tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span> <span class="pre">.</span></tt> (もしくは <tt class="docutils literal"><span class="pre">python</span> <span class="pre">setup.py</span> <span class="pre">install</span></tt>) を実行してください。</p>
+<div class="admonition warning">
+<p class="first admonition-title">警告</p>
+<p class="last">Fabricのどの開発版(<tt class="docutils literal"><span class="pre">==dev</span></tt> もしくは <tt class="docutils literal"><span class="pre">install</span> <span class="pre">-e</span></tt> のどちらでも)でもParamikoの開発版の事前のインストールが必要です。さもないとFabricのインストールに失敗します。</p>
+</div>
+<div class="section" id="dependencies">
+<h2>依存<a class="headerlink" href="#dependencies" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>Fabricのインストールには次の主に4つのソフトウェアが必要です:</p>
+<ul class="simple">
+<li><p class="first">Pythonプログラム言語</p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">setuptools</span></tt> パッケージング/インストールライブラリ</p>
+</li>
+<li><p class="first">Python <tt class="docutils literal"><span class="pre">paramiko</span></tt> SSH2 ライブラリ</p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">paramiko</span></tt> の依存、PyCrypto 暗号ライブラリ</p>
+</li>
+</ul>
+<p>そしてもし <a class="reference internal" href="usage/parallel.html"><em>parallel execution mode</em></a> を利用する場合は:</p>
+<ul class="simple">
+<li><p class="first"><a class="reference internal" href="#multiprocessing">マルチプロセッシング</a> ライブラリ</p>
+</li>
+</ul>
+<p>Paramiko 1.12以上を使っている場合は、Paramikoの追加の依存も必要になるでしょう:</p>
+<ul class="simple">
+<li><p class="first"><a class="reference external" href="https://pypi.python.org/pypi/ecdsa/">ecdsa</a> ライブラリー</p>
+</li>
+</ul>
+<p>各依存については重要な詳細がありますので続けて読み進めてください。知っておいたほうがいいことがいくつかあります。</p>
+<div class="section" id="python">
+<h3>Python<a class="headerlink" href="#python" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>Fabricは <a class="reference external" href="http://python.org">Python</a> バージョン2.5もしくは2.6を必要とします。Pythonの他のバージョンについてはいくつかの注意事項があります。</p>
+<ul class="simple">
+<li><p class="first"><strong>Python 2.4</strong> をサポートする予定はありません。このバージョンが古いということと、コンテキストマネージャーや新しいモジュールなど、Python 2.5の数多くの便利なツールのためです。とは言え、2.5特有の機能の数は実際には特に多いということはないので、サードパーティの2.4互換フォークへのリンク &#8211; サポートではなく &#8211; を紹介すると思います(今のところ、私たちの知っている限りではまだそうしたフォークはありませんが)。</p>
+</li>
+<li><p class="first">Fabricは <strong>Python 3.x</strong> ではまだテストされていませんので互換性がないかもしれません。とはいえ、少なくとも前向きに検討していて(例えば、<tt class="docutils literal"><span class="pre">print</span></tt> ではなく <tt class="docutils literal"><span class="pre">print()</span></tt> を使用する)、将来的には依存するライブラリ等が3.xに移植されれば間違いなくFabricも3.xに移植します。</p>
+</li>
+</ul>
+</div>
+<div class="section" id="setuptools">
+<h3>setuptools<a class="headerlink" href="#setuptools" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p><a class="reference external" href="http://pypi.python.org/pypi/setuptools">Setuptools</a> はインストールされるPythonによってはデフォルトで同梱されています。もしなければ、入れる必要があります。その場合、たいていはパッケージ名が <tt class="docutils literal"><span class="pre">python-setuptools</span></tt> や <tt class="docutils literal"><span class="pre">py25-setuptools</span></tt>、もしくは似た名称になっています。Fabricは将来的にはこのsetuptoolsへの依存をなくすか、代替の <a class="reference external" href="http://pypi.python.org/pypi/distribute">Distribute</a> プロジェクトへのサポートを含むようにします。しかし今のところはインストールに setuptools が必要です。</p>
+</div>
+<div class="section" id="pycrypto">
+<h3>PyCrypto<a class="headerlink" href="#pycrypto" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p><a class="reference external" href="https://www.dlitz.net/software/pycrypto/">PyCrypto</a> はSSHの実行で利用される低レベル (Cベース) の暗号アルゴリズムを提供していて、そのため、わたしたちのSSHライブラリでも必要になります。PyCryptoのインストールに関してはいつくか知っておいたほうがいいことがあります。Pythonのパッケージツールとの互換性とCベースの拡張であるということです。</p>
+<div class="section" id="package-tools">
+<span id="pycrypto-and-pip"></span><h4>パッケージツール<a class="headerlink" href="#package-tools" title="このヘッドラインへのパーマリンク">¶</a></h4>
+<p>Fabricのインストールには <tt class="docutils literal"><span class="pre">pip</span></tt> の利用を強くおすすめします。<tt class="docutils literal"><span class="pre">easy_install</span></tt> よりも新しく、一般的に言っても優れているからです。とは言え、Pythonと <tt class="docutils literal"><span class="pre">pip</span></tt> とPyCryptoの特定のバージョンでの組み合わせによってはバグがあり、PyCryptoのインストールができないことがあります。特に、</p>
+<ul class="simple">
+<li>Python = 2.5.x</li>
+<li><p class="first">PyCrypto &gt;= 2.1 (これにはFabric &gt;= 1.3が必要です)</p>
+</li>
+<li><tt class="docutils literal"><span class="pre">pip</span></tt> &lt; 0.8.1</li>
+</ul>
+<p>この3つの条件がそろった時に <tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">Fabric</span></tt> もしくは <tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">PyCrypto</span></tt> を実行しようとすると <tt class="docutils literal"><span class="pre">No</span> <span class="pre">such</span> <span class="pre">file</span> <span class="pre">or</span> <span class="pre">directory</span></tt> IOエラーに出くわすでしょう。</p>
+<p>修正は簡単で、以下を実行し、上の3つの条件のうち一つでも満たさなくすることです (望ましい順):</p>
+<ul class="simple">
+<li><p class="first"><tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-U</span> <span class="pre">pip</span></tt> を実行するなどして <tt class="docutils literal"><span class="pre">pip</span></tt> 0.8.1 以上にアップグレードする</p>
+</li>
+<li><p class="first">Python 2.6以上にアップグレードする</p>
+</li>
+<li><p class="first">PyCrypto 2.1位上を必要としないFabric 1.2.x にダウングレードし、PyCrypto 2.0.1 (Fabric 1.2で動作するPyPIの最も古いバージョン)</p>
+</li>
+</ul>
+</div>
+<div class="section" id="c-extension">
+<h4>C拡張<a class="headerlink" href="#c-extension" title="このヘッドラインへのパーマリンク">¶</a></h4>
+<p>Debian aptリポジトリもしくはRedHat RPMなどのコンパイル済みのソースからインストールしたり、もしくは <a class="reference internal" href="#pypm"><em>pypm</em></a> を使っていたりするのでなければ、PyCryptoをインストールするためにはソースからPythonのCベースモジュールをビルドできるようになっている必要があります。UbuntuやMac OS Xのような <strong>Unixベースのプラットフォーム</strong> のユーザは、 <tt class="docutils literal"><span class="pre">python-dev</span></tt> もしくは似たような名称のPython開発ライブラリとともに、伝統的なCのビルドツールチェインがインストールされている必要があります。(例えば、MacならDeveloper Tools / XCode Tools、UbuntuやDebianなら <tt class="docutils literal"><span class="pre">build-essential</span></tt> パッケージ &#8211; 基本的に <tt class="docutils literal"><span class="pre">gcc</span></tt>、 <tt class="docutils literal"><span class="pre">make</span></tt> などなどが付帯しているものなんでも)</p>
+<p><strong>Windows</strong> ユーザーは <a class="reference internal" href="#pypm"><em>ActivePythonとPyPM</em></a> の利用か、 <a class="reference external" href="http://cygwin.com">Cygwin</a> などのC開発環境のインストール、もしくは <a class="reference external" href="http://www.voidspace.org.uk/python/modules.shtml#pycrypto">voidspaceのPythonモジュールページ</a> からコンパイル済みのWin32 PyCryptoパッケージの取得をおすすめします。</p>
+<div class="admonition note">
+<p class="first admonition-title">ノート</p>
+<p class="last">64ビットのPythonを使用しているWindowsユーザーによっては、PyCryptoの依存 <tt class="docutils literal"><span class="pre">winrandom</span></tt> が正しくインストールできず、ImportErrorsを引き起こすことがあります。この場合、MS Visual Studioなどで <tt class="docutils literal"><span class="pre">winrandom</span></tt> をご自分でコンパイルする必要があるかもしれません。詳細は <a class="reference external" href="https://github.com/fabric/fabric/issues/194">#194</a> をご覧ください。</p>
+</div>
+</div>
+</div>
+<div class="section" id="multiprocessing">
+<h3><tt class="docutils literal"><span class="pre">マルチプロセッシング</span></tt><a class="headerlink" href="#multiprocessing" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>オプションの依存である <tt class="docutils literal"><span class="pre">multiprocessing</span></tt> ライブラリはPythonの2.6以上で標準ライブラリに含まれています。もしPythonの2.5を利用していてFabricの <a class="reference internal" href="usage/parallel.html"><em>並列実行機能</em></a> を利用したい場合は、手動でインストールする必要があります。おすすめの方法は、いつもと同じく <tt class="docutils literal"><span class="pre">pip</span></tt> 経由です。詳細は <a class="reference external" href="http://pypi.python.org/pypi/multiprocessing/">マルチプロセッシングPyPIのページ</a> をご覧ください。</p>
+<div class="admonition warning">
+<p class="first admonition-title">警告</p>
+<p>Python 2.6の初期のバージョン(わたしたちのテストでは2.6.0から2.6.2)ではバギーな <tt class="docutils literal"><span class="pre">multiprocessing</span></tt> モジュールが同梱されていて、並列ホストの数が多い時のセッションの最後にFabricをハングさせることがあるようです。もしこの現象に出くわしたら並列処理の数を制限するために <a class="reference internal" href="usage/env.html#pool-size"><em>env.pool_size / -z</em></a> を利用するか、Python 2.6.3位上にアップグレードしてください。</p>
+<p class="last">Python 2.5 では影響はありません。<tt class="docutils literal"><span class="pre">multiprocessing</span></tt> のPyPIバージョンを必要とするからで、これはPython 2.6.3未満で同梱されているものより新しいからです。</p>
+</div>
+</div>
+<div class="section" id="development-dependencies">
+<h3>開発の依存<a class="headerlink" href="#development-dependencies" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>Fabricの開発作業(もしくはただたんにテストの実行)に興味があるのなら、以下のパッケージの一部もしくはすべてをインストールする必要があります:</p>
+<ul class="simple">
+<li><p class="first"><a class="reference external" href="http://git-scm.com">git</a> と <a class="reference external" href="http://mercurial.selenic.com/wiki/">Mercurial</a>、以下の他の依存を取得するため;</p>
+</li>
+<li><a class="reference external" href="https://github.com/nose-devs/nose">Nose</a></li>
+<li><a class="reference external" href="http://nedbatchelder.com/code/modules/coverage.html">Coverage</a></li>
+<li><a class="reference external" href="http://www.logilab.org/857">PyLint</a></li>
+<li><a class="reference external" href="http://farmdev.com/projects/fudge/index.html">Fudge</a></li>
+<li><a class="reference external" href="http://sphinx.pocoo.org/">Sphinx</a></li>
+</ul>
+<p>テスト/開発に必要なものやバージョンの正確な最新の一覧は配布ソースに含まれている <tt class="docutils literal"><span class="pre">requirements.txt</span></tt> ファイルを参照してください。このファイルは  <tt class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-r</span> <span class="pre">requirements.txt</span></tt> など <tt class="docutils literal"><span class="pre">pip</span></tt> の利用を前提としています。</p>
+</div>
+</div>
+<div class="section" id="downloads">
+<span id="id4"></span><h2>ダウンロード<a class="headerlink" href="#downloads" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>Fabricソースコードのtar.gzもしくはzipアーカイブを取得するには <a class="reference external" href="http://pypi.python.org/pypi/Fabric">FabricのPyPIページ</a> を参照してください。 <tt class="docutils literal"><span class="pre">pip</span></tt> や <tt class="docutils literal"><span class="pre">easy-install</span></tt> 以外の手動でのダウンロードができます。</p>
+</div>
+<div class="section" id="source-code-checkouts">
+<span id="id5"></span><h2>ソースコードのチェックアウト<a class="headerlink" href="#source-code-checkouts" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>Fabricの開発者は <a class="reference external" href="http://git-scm.com">Git</a> DVCSでプロジェクトのソースコードを管理しています。公式のリリースをダウンロードするのではなくGit経由でFabricの開発を追うのなら、次のオプションがあります:</p>
+<ul class="simple">
+<li><p class="first"><a class="reference external" href="https://github.com/fabric/fabric">Github上のFabricオーガナイザーのリポジトリ</a>、 <tt class="docutils literal"><span class="pre">git://github.com/fabric/fabric.git</span></tt> から正規のリポジトリをクローンする</p>
+</li>
+<li><p class="first">GitHubアカウントを作成し、 <a class="reference external" href="http://github.com/fabric/fabric">fabric/fabric</a> を開き &#8220;fork&#8221; ボタンをクリックしてGitHubリポジトリからフォークする</p>
+</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">ノート</p>
+<p class="last">Fabricのソースをソース管理経由で取得し、将来もそのチェックアウトをアップデートするつもりなら、 <tt class="docutils literal"><span class="pre">python</span> <span class="pre">setup.py</span> <span class="pre">develop</span></tt> の利用を強くおすすめします。これはファイルのコピーの代わりにシンボリックリンクを利用し、ライブラリーのインポートやコマンドラインツールの利用で常にそのチェックアウトを参照するようにします。</p>
+</div>
+<p>Fabric開発の詳細、面白そうなブランチ、協力方法については <a class="reference internal" href="development.html"><em>開発</em></a> のページを参照してください。</p>
+</div>
+<div class="section" id="activepython-and-pypm">
+<span id="pypm"></span><h2>ActivePythonとPyPM<a class="headerlink" href="#activepython-and-pypm" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>ActiveStateの <a class="reference external" href="http://www.activestate.com/activepython/downloads">ActivePython</a> ディストリビューションがすでにインストールされているWindowsユーザーは、<a class="reference external" href="http://code.activestate.com/pypm/">そのパッケージマネージャーのPyPM</a> でFabricをインストールするのが一番です。以下は <tt class="docutils literal"><span class="pre">pypm</span></tt> 経由でFabricをインストールする時の出力の例です:</p>
+<div class="highlight-python"><div class="highlight"><pre>C:\&gt; pypm install fabric
+The following packages will be installed into &quot;%APPDATA%\Python&quot; (2.7):
+ paramiko-1.7.8 pycrypto-2.4 fabric-1.3.0
+Get: [pypm-free.activestate.com] fabric 1.3.0
+Get: [pypm-free.activestate.com] paramiko 1.7.8
+Get: [pypm-free.activestate.com] pycrypto 2.4
+Installing paramiko-1.7.8
+Installing pycrypto-2.4
+Installing fabric-1.3.0
+Fixing script %APPDATA%\Python\Scripts\fab-script.py
+C:\&gt;
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+
+
+<h3>Project Versions</h3>
+<ul id="sidebar_versions">
+    
+    
+    <li><a href="/en/1.8.0/">1.8.0</a></li>
+    
+    
+    
+    <li><a href="/en/1.7.0/">1.7.0</a></li>
+    
+    
+    
+    <li><a href="/en/1.6.2/">1.6.2</a></li>
+    
+    
+    
+    <li><a href="/en/1.6.1/">1.6.1</a></li>
+    
+    
+    
+    <li><a href="/en/1.6.0/">1.6.0</a></li>
+    
+    
+    
+    <li><a href="/en/1.5.4/">1.5.4</a></li>
+    
+    
+    
+    <li><a href="/en/1.5.3/">1.5.3</a></li>
+    
+    
+    
+    <li><a href="/en/1.5.2/">1.5.2</a></li>
+    
+    
+    
+    <li><a href="/en/1.5.1/">1.5.1</a></li>
+    
+    
+    
+    <li><a href="/en/1.5.0/">1.5.0</a></li>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</ul>
+
+
+  <h3><a href="index.html">目次</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">インストール</a><ul>
+<li><a class="reference internal" href="#dependencies">依存</a><ul>
+<li><a class="reference internal" href="#python">Python</a></li>
+<li><a class="reference internal" href="#setuptools">setuptools</a></li>
+<li><a class="reference internal" href="#pycrypto">PyCrypto</a><ul>
+<li><a class="reference internal" href="#package-tools">パッケージツール</a></li>
+<li><a class="reference internal" href="#c-extension">C拡張</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#multiprocessing"><tt class="docutils literal"><span class="pre">マルチプロセッシング</span></tt></a></li>
+<li><a class="reference internal" href="#development-dependencies">開発の依存</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#downloads">ダウンロード</a></li>
+<li><a class="reference internal" href="#source-code-checkouts">ソースコードのチェックアウト</a></li>
+<li><a class="reference internal" href="#activepython-and-pypm">ActivePythonとPyPM</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="tutorial.html"
+                        title="前の章へ">概要とチュートリアル</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="development.html"
+                        title="次の章へ">開発</a></p>
+  <h3>このページ</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/installation.txt"
+           rel="nofollow">ソースコードを表示</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>クイック検索</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="検索" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    モジュール、クラス、または関数名を入力してください
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="development.html" title="開発"
+             >次へ</a> |</li>
+        <li class="right" >
+          <a href="tutorial.html" title="概要とチュートリアル"
+             >前へ</a> |</li>
+        <li><a href="index.html">Fabric 1.8.1 ドキュメント</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Christian Vest Hansen and Jeffrey E. Forcier.
+      このドキュメントは <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.1 で生成しました。
+    </div>
+  </body>
+</html>

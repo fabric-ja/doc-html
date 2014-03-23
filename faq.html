@@ -1,0 +1,384 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>よくある質問 (FAQ) &mdash; Fabric 1.8.1 ドキュメント</title>
+    
+    <link rel="stylesheet" href="_static/rtd.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.8.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/translations.js"></script>
+    <link rel="top" title="Fabric 1.8.1 ドキュメント" href="index.html" />
+    <link rel="next" title="Troubleshooting" href="troubleshooting.html" />
+    <link rel="prev" title="開発" href="development.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-18486793-1']);
+  _gaq.push(['_setDomainName', '.fabfile.org']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="troubleshooting.html" title="Troubleshooting"
+             accesskey="N">次へ</a> |</li>
+        <li class="right" >
+          <a href="development.html" title="開発"
+             accesskey="P">前へ</a> |</li>
+        <li><a href="index.html">Fabric 1.8.1 ドキュメント</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="frequently-asked-questions-faq">
+<h1>よくある質問 (FAQ)<a class="headerlink" href="#frequently-asked-questions-faq" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<p>ここには最もよく遭遇するいくつかの問題とユーザーから我々に繰り返し寄せられる質問があります。これは他のドキュメントの替わりになるものではありません。特に <a class="reference internal" href="index.html#usage-docs"><em>usage docs</em></a>, そこでここに無い質問はまずドキュメントを調べてください。</p>
+<div class="section" id="how-do-i-dynamically-set-host-lists">
+<h2>動的ホストリストを使うには?<a class="headerlink" href="#how-do-i-dynamically-set-host-lists" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><tt class="xref py py-obj docutils literal"><span class="pre">dynamic-hosts</span></tt> を参照してください。</p>
+</div>
+<div class="section" id="how-can-i-run-something-after-my-task-is-done-on-all-hosts">
+<h2>すべてのホストでタスクを実行した後に何かを実行するには?<a class="headerlink" href="#how-can-i-run-something-after-my-task-is-done-on-all-hosts" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><tt class="xref py py-obj docutils literal"><span class="pre">leveraging-execute-return-value</span></tt> を参照してください。</p>
+</div>
+<div class="section" id="init-scripts-don-t-work">
+<span id="init-scripts-pty"></span><h2>Initスクリプトが動きません!<a class="headerlink" href="#init-scripts-don-t-work" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>Init形式の start/stop/restart スクリプト(例えば <tt class="docutils literal"><span class="pre">/etc/init.d/apache2</span> <span class="pre">start</span></tt>)が Fabric の pseudo-tty の割り当てでうまく動かないことがあります。これはデフォルトで active です。ほとんどの場合、特にこのようなコマンドの呼び出しでは <tt class="docutils literal"><span class="pre">pty=False</span></tt> で正しく動作します:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">sudo</span><span class="p">(</span><span class="s">&quot;/etc/init.d/apache2 restart&quot;</span><span class="p">,</span> <span class="n">pty</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>対話式の操作も必要なくこの問題が度々起こるならグローバル設定を <a class="reference internal" href="usage/env.html#always-use-pty"><em>env.always_use_pty</em></a> から <tt class="docutils literal"><span class="pre">False</span></tt> に変えて pty の割り当てを無効にしてもよいでしょう。</p>
+</div>
+<div class="section" id="my-cd-workon-export-etc-calls-don-t-seem-to-work">
+<span id="one-shell-per-command"></span><h2>(<tt class="docutils literal"><span class="pre">cd</span></tt>/<tt class="docutils literal"><span class="pre">workon</span></tt>/<tt class="docutils literal"><span class="pre">export</span></tt>/etc) が動きません!<a class="headerlink" href="#my-cd-workon-export-etc-calls-don-t-seem-to-work" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>Fabric は多くのシェルスクリプトのようなタスクを使いますが、そこにはわかりにくい落とし穴があります: それぞれの <a class="reference internal" href="api/core/operations.html#fabric.operations.run" title="fabric.operations.run"><tt class="xref py py-obj docutils literal"><span class="pre">run</span></tt></a> や <a class="reference internal" href="api/core/operations.html#fabric.operations.sudo" title="fabric.operations.sudo"><tt class="xref py py-obj docutils literal"><span class="pre">sudo</span></tt></a> の呼び出しは別のシェルセッションで行います。これはコマンドが実行された後に Fabric がその標準入出力とリターンコードを確実に理解するために必要です。</p>
+<p>残念ですが以下のようなコードはあなたの期待通りの動作をしないことを意味します:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">deploy</span><span class="p">():</span>
+    <span class="n">run</span><span class="p">(</span><span class="s">&quot;cd /path/to/application&quot;</span><span class="p">)</span>
+    <span class="n">run</span><span class="p">(</span><span class="s">&quot;./update.sh&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>もしこれがシェルスクリプトなら二番目の <a class="reference internal" href="api/core/operations.html#fabric.operations.run" title="fabric.operations.run"><tt class="xref py py-obj docutils literal"><span class="pre">run</span></tt></a> は <tt class="docutils literal"><span class="pre">/path/to/application/</span></tt> を作業ディレクトリとして実行されるでしょう。&#8211; しかし両方のコマンドは SSH を通して別のセッションで実行されます。 <tt class="docutils literal"><span class="pre">$HOME/update.sh</span></tt> を実行しようとします。(リモートのホームディレクトリーがデフォルトの作業ディレクトリーです)</p>
+<p>簡単なワークアラウンドは <tt class="docutils literal"><span class="pre">&amp;&amp;</span></tt> のような制御演算子を使うことです。複数の命令を一度に書けます。(エラーがなければ左から順に) このように:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">deploy</span><span class="p">():</span>
+    <span class="n">run</span><span class="p">(</span><span class="s">&quot;cd /path/to/application &amp;&amp; ./update.sh&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Fabric にはこの特別なケースに便利なショートカットがあります: <a class="reference internal" href="api/core/context_managers.html#fabric.context_managers.cd" title="fabric.context_managers.cd"><tt class="xref py py-obj docutils literal"><span class="pre">cd</span></tt></a>. <a class="reference internal" href="api/core/context_managers.html#fabric.context_managers.prefix" title="fabric.context_managers.prefix"><tt class="xref py py-obj docutils literal"><span class="pre">prefix</span></tt></a> も使うことができます。</p>
+<div class="admonition note">
+<p class="first admonition-title">ノート</p>
+<p>絶対パスを使うことでディレクトリー移動をスキップすることもできます:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">deploy</span><span class="p">():</span>
+    <span class="n">run</span><span class="p">(</span><span class="s">&quot;/path/to/application/update.sh&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p class="last">しかしこの方法ではコマンドが現在の作業ディレクトリで実行されます!</p>
+</div>
+</div>
+<div class="section" id="how-do-i-use-su-to-run-commands-as-another-user">
+<h2>別のユーザーでコマンドを実行する <tt class="docutils literal"><span class="pre">su</span></tt> の使い方は?<a class="headerlink" href="#how-do-i-use-su-to-run-commands-as-another-user" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>これは <a class="reference internal" href="#one-shell-per-command"><em>(cd/workon/export/etc) が動きません!</em></a> の特殊なケースです。FAQで説明したように <tt class="docutils literal"><span class="pre">su</span></tt> のようなコマンドは &#8216;stateful&#8217; です。Fabric でうまく動きません。そこでワークアラウンド(回避策)を使います。</p>
+<p>ログインユーザーと別のユーサーでコマンドを実行するには2つの選択肢があります:</p>
+<ol class="arabic">
+<li><p class="first"><a class="reference internal" href="api/core/operations.html#fabric.operations.sudo" title="fabric.operations.sudo"><tt class="xref py py-obj docutils literal"><span class="pre">sudo</span></tt></a> を kwarg <tt class="docutils literal"><span class="pre">user=</span></tt> で使う。例えば、<tt class="docutils literal"><span class="pre">sudo(&quot;command&quot;,</span> <span class="pre">user=&quot;otheruser&quot;)</span></tt>。もし <tt class="docutils literal"><span class="pre">user</span></tt> 部分をコマンドと別にしたいのなら <a class="reference internal" href="api/core/context_managers.html#fabric.context_managers.settings" title="fabric.context_managers.settings"><tt class="xref py py-obj docutils literal"><span class="pre">settings</span></tt></a> で <tt class="docutils literal"><span class="pre">env.sudo_user</span></tt> を設定します:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">with</span> <span class="n">settings</span><span class="p">(</span><span class="n">sudo_user</span><span class="o">=</span><span class="s">&quot;otheruser&quot;</span><span class="p">):</span>
+    <span class="n">sudo</span><span class="p">(</span><span class="s">&quot;command 1&quot;</span><span class="p">)</span>
+    <span class="n">sudo</span><span class="p">(</span><span class="s">&quot;command 2&quot;</span><span class="p">)</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">もし何らかの理由でターゲットシステムで <tt class="docutils literal"><span class="pre">sudo</span></tt> が使えないのなら <tt class="docutils literal"><span class="pre">su</span></tt> を使う方法があります。それにはシェルを開かずに特定のコマンドを実行するように非対話形式で呼び出す必要があります。一般的に <tt class="docutils literal"><span class="pre">-c</span></tt> フラグを使います。例えば <tt class="docutils literal"><span class="pre">su</span> <span class="pre">otheruser</span> <span class="pre">-c</span> <span class="pre">&quot;command&quot;</span></tt></p>
+<p><tt class="docutils literal"><span class="pre">su</span> <span class="pre">-c</span></tt> &#8220;ラッパー&#8221; で様々なコマンドを実行するには <a class="reference internal" href="api/core/operations.html#fabric.operations.run" title="fabric.operations.run"><tt class="xref py py-obj docutils literal"><span class="pre">run</span></tt></a> のラッパー関数を書きます:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">run_su</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="s">&quot;otheruser&quot;</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">run</span><span class="p">(</span><span class="s">&#39;su </span><span class="si">%s</span><span class="s"> -c &quot;</span><span class="si">%s</span><span class="s">&quot;&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">command</span><span class="p">))</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</div>
+<div class="section" id="why-do-i-sometimes-see-err-stdin-is-not-a-tty">
+<h2>なぜ時々 <tt class="docutils literal"><span class="pre">err:</span> <span class="pre">stdin:</span> <span class="pre">is</span> <span class="pre">not</span> <span class="pre">a</span> <span class="pre">tty</span></tt> が表示されるのですか?<a class="headerlink" href="#why-do-i-sometimes-see-err-stdin-is-not-a-tty" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>これらのメッセージは通常リモートユーザーの <tt class="docutils literal"><span class="pre">.profile</span></tt> や <tt class="docutils literal"><span class="pre">.bashrc</span></tt> ファイル(あるいはシステム全体を含むそのようなファイル) に潜んでいる <tt class="docutils literal"><span class="pre">biff</span></tt> や <tt class="docutils literal"><span class="pre">mesg</span></tt> で出されます。 Fabric のデフォルトでは Bashシェルをこれらのファイルを実行する &#8220;ログインモード&#8221; で起動します。</p>
+<p>Fabric はデフォルトではリモート側の tty を持ちません。(通常は必要ないため)スタートアップファイルにあるプログラムは tty があるものだと期待しているため実行されると文句を言います &#8211; このようにして &#8220;stdin is not a tty&#8221; のような標準エラー出力が現れます。</p>
+<p>この問題に対処するには様々な方法があります:</p>
+<ul class="simple">
+<li><p class="first">余計なプログラムの呼び出しを見つけて削除あるいはコメントアウトする。そのプログラムがあなたが意図的に追加したものではなく単にオペレーティングシステムの遺産だとするとこの方法でうまくいきます。最もシンプルなアプローチです。</p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">env.shell</span></tt> から <tt class="docutils literal"><span class="pre">-l</span></tt> を取り去る。これで Bash がスタートアップファイル(エイリアスなど)をロードしません。これも良い方法でしょう。</p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">pty=True</span></tt> を <tt class="xref py py-obj docutils literal"><span class="pre">run</span></tt> や <tt class="xref py py-obj docutils literal"><span class="pre">sudo</span></tt> に渡す。これでリモート側に pseudo-tty の割り当てを強制します。うまくいけば問題のあるプログラムの機嫌が直ります。</p>
+</li>
+</ul>
+</div>
+<div class="section" id="why-can-t-i-run-programs-in-the-background-with-it-makes-fabric-hang">
+<span id="faq-daemonize"></span><h2><tt class="docutils literal"><span class="pre">&amp;</span></tt> でプログラムをバックグラウンドで実行できません。Fabric がハングします。<a class="headerlink" href="#why-can-t-i-run-programs-in-the-background-with-it-makes-fabric-hang" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>Fabric はリモート側で <tt class="docutils literal"><span class="pre">run</span></tt> や <tt class="docutils literal"><span class="pre">sudo</span></tt> (<a class="reference internal" href="#one-shell-per-command"><em>see also</em></a>) の呼び出しでそれぞれシェルを起動します。<tt class="docutils literal"><span class="pre">run</span></tt> or <tt class="docutils literal"><span class="pre">sudo</span></tt> (<a class="reference internal" href="#one-shell-per-command"><em>see also</em></a>)。シェルを通してのバックグランドプロセスは期待通りに動きません。バックグランドプロセスが終了するまで呼び出されたシェルから抜けられないかもしれません。これでは Fabric が順番に実行することができません。</p>
+<p>これを解決する鍵は呼び出したシェルからすべてのプロセスの標準パイプが分離されていることを確実にすることです。方法はいくつかあります。(確実(robustness)な順にリスト):</p>
+<ul>
+<li><p class="first">既存のデーモン化するテクニックを使う。  &#8211; 例えば直接サーバーのバイナリーを呼ばずに init スクリプトを呼びます。</p>
+<blockquote>
+<div><ul class="simple">
+<li><p class="first"><tt class="docutils literal"><span class="pre">supervisord</span></tt> や <tt class="docutils literal"><span class="pre">systemd</span></tt> のようなプロセスマネージャーを使う。 - such tools let you define what it means to &#8220;run&#8221; one of your background processes, then issue init-script-like start/stop/restart/status commands. これは古典的な init スクリプトより多くの利点があります。</p>
+</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first">走っているシェルから完全にプロセスを分けるには <tt class="docutils literal"><span class="pre">tmux</span></tt> や <tt class="docutils literal"><span class="pre">screen</span></tt> や <tt class="docutils literal"><span class="pre">dtach</span></tt> を使う; これらのツールは必要なら後でプロセスをリアタッチできるので便利です。(しかし <tt class="docutils literal"><span class="pre">supervisord</span></tt> のようなツールに比べてさらに場当たり的(ad-hoc)です)。</p>
+</li>
+<li><p class="first">プログラムを <a href="#id1"><span class="problematic" id="id2">``</span></a>nohup``で走らせたり似たような &#8220;in-shell&#8221; ツールを使う - 注意 これが有効なユーザーは少ないようです。</p>
+</li>
+</ul>
+</div>
+<div class="section" id="my-remote-system-doesn-t-have-bash-installed-by-default-do-i-need-to-install-bash">
+<span id="faq-bash"></span><h2>リモートシステムにデフォルトで <tt class="docutils literal"><span class="pre">bash</span></tt> がありません。<tt class="docutils literal"><span class="pre">bash</span></tt> をインストールすべきですか?<a class="headerlink" href="#my-remote-system-doesn-t-have-bash-installed-by-default-do-i-need-to-install-bash" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>Fabric は <tt class="docutils literal"><span class="pre">bash</span></tt> を念頭に書かれていますが、絶対必要ではありません。単に <a class="reference internal" href="usage/env.html#shell"><em>env.shell</em></a> を好きなシェルに変えます。そして <tt class="docutils literal"><span class="pre">bash</span></tt> の <tt class="docutils literal"><span class="pre">-c</span></tt> 引数のようなシェルコマンドを構築できる引数を使います:</p>
+<div class="highlight-python"><div class="highlight"><pre>/bin/bash -l -c &quot;&lt;command string here&gt;&quot;
+</pre></div>
+</div>
+<p>where <tt class="docutils literal"><span class="pre">/bin/bash</span> <span class="pre">-l</span> <span class="pre">-c</span></tt> is the default value of <a class="reference internal" href="usage/env.html#shell"><em>env.shell</em></a>.</p>
+<div class="admonition note">
+<p class="first admonition-title">ノート</p>
+<p class="last"><tt class="docutils literal"><span class="pre">-l</span></tt> はログインシェルを指定しています。多くの状況で便利ですが必ずしも必要ではありません。いくつかのシェルにはこのオプションがありませんが、その場合は無視されるでしょう。</p>
+</div>
+<p>比較的安全な方法は、オリジナルの <tt class="docutils literal"><span class="pre">sh</span></tt> バイナリーや(いくつかのシステムでは) <tt class="docutils literal"><span class="pre">csh</span></tt> を呼ぶ  <tt class="docutils literal"><span class="pre">/bin/sh</span></tt> を使うことです。そして <tt class="docutils literal"><span class="pre">-c</span></tt> オプションを使います。このように:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">fabric.api</span> <span class="kn">import</span> <span class="n">env</span>
+
+<span class="n">env</span><span class="o">.</span><span class="n">shell</span> <span class="o">=</span> <span class="s">&quot;/bin/sh -c&quot;</span>
+</pre></div>
+</div>
+<p>これは FreeBSD で動作します。同様に他のシステムでも動くでしょう。</p>
+</div>
+<div class="section" id="i-m-sometimes-incorrectly-asked-for-a-passphrase-instead-of-a-password">
+<h2>時々間違ってパスワードの代わりにパスフレーズを聞かれます。<a class="headerlink" href="#i-m-sometimes-incorrectly-asked-for-a-passphrase-instead-of-a-password" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>SSH レイヤーのバグのため今現在 Fabric は常に必要な認証のタイプを正確に検出できません。プライベートキーのパスフレーズかリモートサーバーのパスワードのどちらが必要か推測しなければなりません。そしていくつかのケースではその推測が間違っています。</p>
+<p>最もよくある状況は、あなたはローカルユーザーとして確かに SSH キーチェインエージェントを実行している、しかしリモートサーバーはあなたの SSH キーを受け取っていない。例えばパブリックキーを送っていないとか間違ったユーザー名を使っている。 Fabric は &#8220;Please enter passphrase for private key&#8221; と表示しますが実際には入力をリモート側にパスワードをして送ります。</p>
+<p>将来のリリースで前述の SSHライブラリの fork を変更して対処するつもりです。</p>
+</div>
+<div class="section" id="is-fabric-thread-safe">
+<h2>Fabricはスレッドセーフ?<a class="headerlink" href="#is-fabric-thread-safe" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>現時点では No、&#8211; 現在のバージョンの Fabric はコードベースをシンプルにするために激しく共有状態(shared state)に依存しています。しかし同時に複数のサーバーでタスクを実行するために Fabric をスレッド化、あるいは並行処理する明確な計画があります。</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+
+
+<h3>Project Versions</h3>
+<ul id="sidebar_versions">
+    
+    
+    <li><a href="/en/1.8.0/">1.8.0</a></li>
+    
+    
+    
+    <li><a href="/en/1.7.0/">1.7.0</a></li>
+    
+    
+    
+    <li><a href="/en/1.6.2/">1.6.2</a></li>
+    
+    
+    
+    <li><a href="/en/1.6.1/">1.6.1</a></li>
+    
+    
+    
+    <li><a href="/en/1.6.0/">1.6.0</a></li>
+    
+    
+    
+    <li><a href="/en/1.5.4/">1.5.4</a></li>
+    
+    
+    
+    <li><a href="/en/1.5.3/">1.5.3</a></li>
+    
+    
+    
+    <li><a href="/en/1.5.2/">1.5.2</a></li>
+    
+    
+    
+    <li><a href="/en/1.5.1/">1.5.1</a></li>
+    
+    
+    
+    <li><a href="/en/1.5.0/">1.5.0</a></li>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</ul>
+
+
+  <h3><a href="index.html">目次</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">よくある質問 (FAQ)</a><ul>
+<li><a class="reference internal" href="#how-do-i-dynamically-set-host-lists">動的ホストリストを使うには?</a></li>
+<li><a class="reference internal" href="#how-can-i-run-something-after-my-task-is-done-on-all-hosts">すべてのホストでタスクを実行した後に何かを実行するには?</a></li>
+<li><a class="reference internal" href="#init-scripts-don-t-work">Initスクリプトが動きません!</a></li>
+<li><a class="reference internal" href="#my-cd-workon-export-etc-calls-don-t-seem-to-work">(<tt class="docutils literal"><span class="pre">cd</span></tt>/<tt class="docutils literal"><span class="pre">workon</span></tt>/<tt class="docutils literal"><span class="pre">export</span></tt>/etc) が動きません!</a></li>
+<li><a class="reference internal" href="#how-do-i-use-su-to-run-commands-as-another-user">別のユーザーでコマンドを実行する <tt class="docutils literal"><span class="pre">su</span></tt> の使い方は?</a></li>
+<li><a class="reference internal" href="#why-do-i-sometimes-see-err-stdin-is-not-a-tty">なぜ時々 <tt class="docutils literal"><span class="pre">err:</span> <span class="pre">stdin:</span> <span class="pre">is</span> <span class="pre">not</span> <span class="pre">a</span> <span class="pre">tty</span></tt> が表示されるのですか?</a></li>
+<li><a class="reference internal" href="#why-can-t-i-run-programs-in-the-background-with-it-makes-fabric-hang"><tt class="docutils literal"><span class="pre">&amp;</span></tt> でプログラムをバックグラウンドで実行できません。Fabric がハングします。</a></li>
+<li><a class="reference internal" href="#my-remote-system-doesn-t-have-bash-installed-by-default-do-i-need-to-install-bash">リモートシステムにデフォルトで <tt class="docutils literal"><span class="pre">bash</span></tt> がありません。<tt class="docutils literal"><span class="pre">bash</span></tt> をインストールすべきですか?</a></li>
+<li><a class="reference internal" href="#i-m-sometimes-incorrectly-asked-for-a-passphrase-instead-of-a-password">時々間違ってパスワードの代わりにパスフレーズを聞かれます。</a></li>
+<li><a class="reference internal" href="#is-fabric-thread-safe">Fabricはスレッドセーフ?</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="development.html"
+                        title="前の章へ">開発</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="troubleshooting.html"
+                        title="次の章へ">Troubleshooting</a></p>
+  <h3>このページ</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/faq.txt"
+           rel="nofollow">ソースコードを表示</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>クイック検索</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="検索" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    モジュール、クラス、または関数名を入力してください
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="troubleshooting.html" title="Troubleshooting"
+             >次へ</a> |</li>
+        <li class="right" >
+          <a href="development.html" title="開発"
+             >前へ</a> |</li>
+        <li><a href="index.html">Fabric 1.8.1 ドキュメント</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Christian Vest Hansen and Jeffrey E. Forcier.
+      このドキュメントは <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.1 で生成しました。
+    </div>
+  </body>
+</html>

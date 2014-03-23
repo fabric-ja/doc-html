@@ -1,0 +1,319 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>開発ロードマップ &mdash; Fabric 1.8.1 ドキュメント</title>
+    
+    <link rel="stylesheet" href="_static/rtd.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.8.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/translations.js"></script>
+    <link rel="top" title="Fabric 1.8.1 ドキュメント" href="index.html" />
+    <link rel="next" title="The environment dictionary, env" href="usage/env.html" />
+    <link rel="prev" title="Troubleshooting" href="troubleshooting.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-18486793-1']);
+  _gaq.push(['_setDomainName', '.fabfile.org']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="usage/env.html" title="The environment dictionary, env"
+             accesskey="N">次へ</a> |</li>
+        <li class="right" >
+          <a href="troubleshooting.html" title="Troubleshooting"
+             accesskey="P">前へ</a> |</li>
+        <li><a href="index.html">Fabric 1.8.1 ドキュメント</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="development-roadmap">
+<h1>開発ロードマップ<a class="headerlink" href="#development-roadmap" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<p>このドキュメントは Fabric の開発予定の概要です。` &lt;<a class="reference external" href="http://docs.fabfile.org/en/latest/roadmap.html">http://docs.fabfile.org/en/latest/roadmap.html</a>&gt; の最新のドキュメント`を読んでください!</p>
+<div class="admonition warning">
+<p class="first admonition-title">警告</p>
+<p class="last">ここの情報は予告なしに変更されます。従って人生やキャリアに関わるどんな決定のベースにもすべきではありません!</p>
+</div>
+<div class="section" id="fabric-1-x">
+<h2>Fabric 1.x<a class="headerlink" href="#fabric-1-x" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>Fabric 1.x はまだ現役ですが内部の技術的負の遺産や下位互換性を犠牲にすることなしに大幅な改良ができないため,限界点に達しています。</p>
+<p>そのようなわけで将来の 1.x リリース(<strong>1.6</strong> 以前)は小中規模の改造(大規模なオーバーホールを必要としない新機能)とバグフィックスに重点が置かれます。</p>
+</div>
+<div class="section" id="invoke-fabric-2-x-and-patchwork">
+<h2>Invoke, Fabric 2.x, Patchwork<a class="headerlink" href="#invoke-fabric-2-x-and-patchwork" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>1.xは上記の方針で進めますが、我々はコンセプトを再構築した 2.x バージョンのツールに取り組みます。計画は:</p>
+<ul>
+<li><p class="first"><tt class="xref py py-obj docutils literal"><span class="pre">Invoke</span> <span class="pre">ツール/ライブラリ&lt;https://github.com/pyinvoke/invoke&gt;`の完成とリリース(参照</span> <span class="pre">:issue:`565</span></tt>)、これは改良したFabricのタスク実行コンポーネントのスタンドアロン・バージョン。</p>
+<blockquote>
+<div><ul>
+<li><p class="first">2013年後半現在、Invoke は成熟期に近づいてすでに Fabric に欠けている機能を少し持っています。それだけでなく:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p class="first">さらにわかりやすく強力な名前空間の実装</p>
+</li>
+<li><p class="first">&#8220;regular&#8221; スタイル CLI フラッグ、</p>
+</li>
+<li><p class="first">before/after フック</p>
+</li>
+<li><p class="first">わかりやすいコンテキスト管理</p>
+</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first">Invoke の新しい依存性の少ないコードベースによりすでに Python 3 と互換性があります。</p>
+</li>
+<li><p class="first">Fabric 2 が開発されたので Invoke は高品質のスタンドアロン・タスクランナーとして Fabric の要求に合わせて成長を続けます。</p>
+</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first">Fabric 2.0 の構成、ほとんど書きなおされた Fabric コア:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p class="first">タスクの実行にもっと Invoke を活用する。Fabric自身をもっとライブラリ志向に。</p>
+</li>
+<li><p class="first">オブジェクト指向の hosts/host リストの実装とそれに関すること(例えば不完全な host 文字列の廃止と直感的でない env 変数の取り扱い。)</p>
+</li>
+<li><p class="first">デフォルトで共有状態を使わない。(Invokeのコンテキストデザインに感謝)</p>
+</li>
+<li><p class="first">下位互換性を難しくしている他のコアのオーバーホール。</p>
+</li>
+<li><p class="first">テスト駆動開発(Invokeと同様)</p>
+</li>
+<li><p class="first">Paramiko に Python 3 と互換性を持たせる必要性 - 最もやっかいな問題の一つ。 参照 <a class="reference external" href="https://github.com/paramiko/paramiko/issues/16">Paramiko #16</a>.</p>
+</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">fabric.contrib.*</span></tt> のスタンドアロン &#8220;super-Fabric&#8221; へのスピンオフ。(上記の)ライブラリ、<a class="reference external" href="https://github.com/fabric/patchwork">Patchwork</a>.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p class="first">これで &#8220;Fabricコアを使う一般的に有効なショートカット&#8221;と別にコアが&#8221;ホスト上のコマンド実行&#8221;を繰り返すことができます。</p>
+</li>
+<li><p class="first"><a class="reference external" href="https://github.com/fabric/fabric/issues/461">#461</a> の多くの作業準備と先行技術の調査は完了</p>
+</li>
+<li><p class="first">APIを考えた Patchwork のアルファ版の公開コードはありますが、これは Fabric 1.xがベースです。Fabric 2.x が安定するまでに Fabric 2.x ベースになるでしょう。</p>
+</li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+
+
+<h3>Project Versions</h3>
+<ul id="sidebar_versions">
+    
+    
+    <li><a href="/en/1.8.0/">1.8.0</a></li>
+    
+    
+    
+    <li><a href="/en/1.7.0/">1.7.0</a></li>
+    
+    
+    
+    <li><a href="/en/1.6.2/">1.6.2</a></li>
+    
+    
+    
+    <li><a href="/en/1.6.1/">1.6.1</a></li>
+    
+    
+    
+    <li><a href="/en/1.6.0/">1.6.0</a></li>
+    
+    
+    
+    <li><a href="/en/1.5.4/">1.5.4</a></li>
+    
+    
+    
+    <li><a href="/en/1.5.3/">1.5.3</a></li>
+    
+    
+    
+    <li><a href="/en/1.5.2/">1.5.2</a></li>
+    
+    
+    
+    <li><a href="/en/1.5.1/">1.5.1</a></li>
+    
+    
+    
+    <li><a href="/en/1.5.0/">1.5.0</a></li>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</ul>
+
+
+  <h3><a href="index.html">目次</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">開発ロードマップ</a><ul>
+<li><a class="reference internal" href="#fabric-1-x">Fabric 1.x</a></li>
+<li><a class="reference internal" href="#invoke-fabric-2-x-and-patchwork">Invoke, Fabric 2.x, Patchwork</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="troubleshooting.html"
+                        title="前の章へ">Troubleshooting</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="usage/env.html"
+                        title="次の章へ">The environment dictionary, <tt class="docutils literal"><span class="pre">env</span></tt></a></p>
+  <h3>このページ</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/roadmap.txt"
+           rel="nofollow">ソースコードを表示</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>クイック検索</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="検索" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    モジュール、クラス、または関数名を入力してください
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="usage/env.html" title="The environment dictionary, env"
+             >次へ</a> |</li>
+        <li class="right" >
+          <a href="troubleshooting.html" title="Troubleshooting"
+             >前へ</a> |</li>
+        <li><a href="index.html">Fabric 1.8.1 ドキュメント</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Christian Vest Hansen and Jeffrey E. Forcier.
+      このドキュメントは <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.1 で生成しました。
+    </div>
+  </body>
+</html>

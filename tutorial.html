@@ -1,0 +1,641 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>概要とチュートリアル &mdash; Fabric 1.8.1 ドキュメント</title>
+    
+    <link rel="stylesheet" href="_static/rtd.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.8.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/translations.js"></script>
+    <link rel="top" title="Fabric 1.8.1 ドキュメント" href="index.html" />
+    <link rel="next" title="インストール" href="installation.html" />
+    <link rel="prev" title="Fabric" href="index.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-18486793-1']);
+  _gaq.push(['_setDomainName', '.fabfile.org']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="installation.html" title="インストール"
+             accesskey="N">次へ</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Fabric"
+             accesskey="P">前へ</a> |</li>
+        <li><a href="index.html">Fabric 1.8.1 ドキュメント</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="overview-and-tutorial">
+<h1>概要とチュートリアル<a class="headerlink" href="#overview-and-tutorial" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<p>Fabric へようこそ !</p>
+<p>このドキュメントは Fabric の機能を紹介する駆け足のツアーであり、使い方のクイックガイドでもあります。さらに詳しいドキュメント(全体にリンクされています)は <a class="reference internal" href="index.html#usage-docs"><em>使用方法</em></a> にあります。ぜひご覧になってください。</p>
+<div class="section" id="what-is-fabric">
+<h2>Fabricとは ?<a class="headerlink" href="#what-is-fabric" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><tt class="docutils literal"><span class="pre">README</span></tt> によると:</p>
+<blockquote>
+<div><a class="reference external image-reference" href="https://travis-ci.org/fabric/fabric"><img alt="https://secure.travis-ci.org/fabric/fabric.png?branch=master" src="https://secure.travis-ci.org/fabric/fabric.png?branch=master" /></a>
+<p>Fabricは、アプリケーションのデプロイやシステム管理のタスクのためにSSHの利用を簡素化するためのPython(2.5以上)のライブラリとコマンドラインツールです。</p>
+</div></blockquote>
+<p>もっと具体的に言うと、Fabricとは:</p>
+<ul class="simple">
+<li><p class="first"><strong>コマンドライン</strong> 経由で <strong>任意の Python 関数</strong> を実行するツールです。</p>
+</li>
+<li><p class="first">(低レベルライブラリの上に構築された)サブルーチンのライブラリで、SSH経由で <strong>簡単に</strong> かつ <strong>Python風に</strong> シェルコマンドを実行します。</p>
+</li>
+</ul>
+<p>当然、たいていのユーザーはこの2つを組み合わせます。Fabricを使ってPythonの関数もしくは <strong>タスク</strong> を作成し、実行し、リモートサーバとのやりとりを自動化します。ではちょっと見てみましょう。</p>
+</div>
+<div class="section" id="hello-fab">
+<h2>Hello, <tt class="docutils literal"><span class="pre">fab</span></tt><a class="headerlink" href="#hello-fab" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>&#8220;いつもの&#8221;がないと正しいチュートリアルではないですよね:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">hello</span><span class="p">():</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&quot;Hello world!&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>上のコードを <tt class="docutils literal"><span class="pre">fabfile.py</span></tt> という名前のPythonモジュールファイルとしてカレントのワーキングディレクトリに置くと、 <tt class="docutils literal"><span class="pre">fab</span></tt> ツール(Fabricのパーツとしてインストールされています)で <tt class="docutils literal"><span class="pre">hello</span></tt> 関数を実行することができ、期待した通りに動きます:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ fab hello
+Hello world!
+
+Done.
+</pre></div>
+</div>
+<p>どうってことはありませんね。この機能性により、自身のAPIを何もインポートしなくても(とても)ベーシックなビルドツールとしてFabricを利用することができます。</p>
+<div class="admonition note">
+<p class="first admonition-title">ノート</p>
+<p class="last"><tt class="docutils literal"><span class="pre">fab</span></tt> ツールは単にあなたのfabfileをインポートしてその指示にしたがい、ひとつもしくは複数の関数を実行します。何かマジックがあるわけではありません。通常のPythonスクリプトで可能なすべてのことがfabfile内でも可能なのです !</p>
+</div>
+<div class="admonition seealso">
+<p class="first admonition-title">参考</p>
+<p class="last"><a class="reference internal" href="usage/execution.html#execution-strategy"><em>Execution strategy</em></a>, <a class="reference internal" href="usage/tasks.html"><em>Defining tasks</em></a>, <a class="reference internal" href="usage/fab.html"><em>fab options and arguments</em></a></p>
+</div>
+</div>
+<div class="section" id="task-arguments">
+<h2>タスク引数<a class="headerlink" href="#task-arguments" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>Fabricでは実行時引数をタスクに渡せるので便利なことも多いです。ちょうと通常のPythonプログラミングのようなものです。Fabricはこの基本的なサポートを持っていて、シェル互換ノーテーションを使っています: <tt class="docutils literal"><span class="pre">&lt;task</span> <span class="pre">name&gt;:&lt;arg&gt;,&lt;kwarg&gt;=&lt;value&gt;,...</span></tt> 不自然な感じがするかもしれませんが、上の例を拡張してあなたに say hello と言うようにしてみましょう:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">hello</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;world&quot;</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&quot;Hello </span><span class="si">%s</span><span class="s">!&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>デフォルトでは、 <tt class="docutils literal"><span class="pre">fab</span> <span class="pre">hello</span></tt> を呼び出しても以前と同じ動きをします。今度はこれをパーソナライズしてみましょう:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ fab hello:name=Jeff
+Hello Jeff!
+
+Done.
+</pre></div>
+</div>
+<p>Pythonプログラミングに慣れた方なら、この呼び出しでもまったく同じ挙動をすることが想像できると思います:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ fab hello:Jeff
+Hello Jeff!
+
+Done.
+</pre></div>
+</div>
+<p>差し当たりは、引数の値は常に文字列としてPythonに現れ、リストなどの複雑な型では少し文字列操作が必要になります。将来のバージョンではこれをより簡単にするため、型キャストシステムが追加されるかもしれません。</p>
+<div class="admonition seealso">
+<p class="first admonition-title">参考</p>
+<p class="last"><a class="reference internal" href="usage/fab.html#task-arguments"><em>Per-task arguments</em></a></p>
+</div>
+</div>
+<div class="section" id="local-commands">
+<h2>ローカルコマンド<a class="headerlink" href="#local-commands" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>上の例では、 <tt class="docutils literal"><span class="pre">fab</span></tt> は <tt class="docutils literal"><span class="pre">if</span> <span class="pre">__name__</span> <span class="pre">==</span> <span class="pre">&quot;__main__&quot;</span></tt> の定型文の何行かを省略できるに過ぎません。たいていはFabricのAPIと利用するためにデザインされます。APIにはシェルコマンドの実行、ファイルの転送などの関数(もしくは <strong>操作</strong>)が含まれます。</p>
+<p>では、仮定のウェブアプリケーションのfabfileを作ってみましょう。この例のシナリオは次のようなものです: このウェブアプリケーションはリモートホスト <tt class="docutils literal"><span class="pre">vcshost</span></tt> 上にGit経由で管理されています。 <tt class="docutils literal"><span class="pre">localhost</span></tt> 上ではこのウェブアプリケーションのローカルクローンがあります。 <tt class="docutils literal"><span class="pre">vcshost</span></tt> に変更をプッシュすると、すぐに、そして自動的にリモートホスト <tt class="docutils literal"><span class="pre">my_server</span></tt> に変更を反映させたいと思います。これを、ローカルとリモートのGitコマンドを自動化することによって実施させてみましょう。</p>
+<p>通常は、fabfileはプロジェクトのルートに置くといいでしょう:</p>
+<div class="highlight-python"><div class="highlight"><pre>.
+|-- __init__.py
+|-- app.wsgi
+|-- fabfile.py &lt;-- our fabfile!
+|-- manage.py
+`-- my_app
+    |-- __init__.py
+    |-- models.py
+    |-- templates
+    |   `-- index.html
+    |-- tests.py
+    |-- urls.py
+    `-- views.py
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">ノート</p>
+<p class="last">ここではDjangoアプリケーションを使用していますが、単に例として用いているだけです。Fabricは、SSHライブラリは別として、どんな外部のコードベースにもひも付けられていません。</p>
+</div>
+<p>まず第一にこのテストを実行し、VCSにコミットしてみましょう。そしてデプロイを準備をします:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">fabric.api</span> <span class="kn">import</span> <span class="n">local</span>
+
+<span class="k">def</span> <span class="nf">prepare_deploy</span><span class="p">():</span>
+    <span class="n">local</span><span class="p">(</span><span class="s">&quot;./manage.py test my_app&quot;</span><span class="p">)</span>
+    <span class="n">local</span><span class="p">(</span><span class="s">&quot;git add -p &amp;&amp; git commit&quot;</span><span class="p">)</span>
+    <span class="n">local</span><span class="p">(</span><span class="s">&quot;git push&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>出力はだいたい次のようになるでしょう:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ fab prepare_deploy
+[localhost] run: ./manage.py test my_app
+Creating test database...
+Creating tables
+Creating indexes
+..........................................
+----------------------------------------------------------------------
+Ran 42 tests in 9.138s
+
+OK
+Destroying test database...
+
+[localhost] run: git add -p &amp;&amp; git commit
+
+&lt;interactive Git add / git commit edit message session&gt;
+
+[localhost] run: git push
+
+&lt;git push session, possibly merging conflicts interactively&gt;
+
+Done.
+</pre></div>
+</div>
+<p>このコード自身は単純です。FabricのAPI関数 <a class="reference internal" href="api/core/operations.html#fabric.operations.local" title="fabric.operations.local"><tt class="xref py py-obj docutils literal"><span class="pre">local</span></tt></a> をインポートし、それを利用してローカルのシェルコマンドを実行し、やりとりを行います。他のFabricのAPIも似ていて、すべてただのPythonです。</p>
+<div class="admonition seealso">
+<p class="first admonition-title">参考</p>
+<p class="last"><a class="reference internal" href="api/core/operations.html"><em>Operations</em></a>, <a class="reference internal" href="usage/fabfiles.html#fabfile-discovery"><em>Fabfile discovery</em></a></p>
+</div>
+</div>
+<div class="section" id="organize-it-your-way">
+<h2>好きなように構造化する<a class="headerlink" href="#organize-it-your-way" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>Fabricは&#8221;ただのPython&#8221;なので、fabfileは好きなように自由に構造化できます。例えば、サブタスクに分けることから始めると便利でしょう:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">fabric.api</span> <span class="kn">import</span> <span class="n">local</span>
+
+<span class="k">def</span> <span class="nf">test</span><span class="p">():</span>
+    <span class="n">local</span><span class="p">(</span><span class="s">&quot;./manage.py test my_app&quot;</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">commit</span><span class="p">():</span>
+    <span class="n">local</span><span class="p">(</span><span class="s">&quot;git add -p &amp;&amp; git commit&quot;</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">push</span><span class="p">():</span>
+    <span class="n">local</span><span class="p">(</span><span class="s">&quot;git push&quot;</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">prepare_deploy</span><span class="p">():</span>
+    <span class="n">test</span><span class="p">()</span>
+    <span class="n">commit</span><span class="p">()</span>
+    <span class="n">push</span><span class="p">()</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">prepare_deploy</span></tt> タスクは以前と同じように呼び出すことができますが、今回は必要であればサブタスクの一つとしてより粒度を細かくして呼び出しをすることができます。</p>
+</div>
+<div class="section" id="failure">
+<h2>失敗<a class="headerlink" href="#failure" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>基本的な動きは問題ないですが、もしテストに失敗したらどうなるでしょうか? デプロイの前にブレーキをかけて修正する機会があります。</p>
+<p>Fabricは操作経由で呼び出されたプログラムの返り値をチェックして、正常に終了しなかった場合には停止します。テストのひとつがエラーに出くわしたときにどうなるか見てみましょう:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ fab prepare_deploy
+[localhost] run: ./manage.py test my_app
+Creating test database...
+Creating tables
+Creating indexes
+.............E............................
+======================================================================
+ERROR: testSomething (my_project.my_app.tests.MainTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+[...]
+
+----------------------------------------------------------------------
+Ran 42 tests in 9.138s
+
+FAILED (errors=1)
+Destroying test database...
+
+Fatal error: local() encountered an error (return code 2) while executing &#39;./manage.py test my_app&#39;
+
+Aborting.
+</pre></div>
+</div>
+<p>素晴らしい! 私たち自身では何もする必要がありませんでした。Fabricが失敗を検知して停止し、<tt class="docutils literal"><span class="pre">commit</span></tt> タスクは決して実行されることはありません。</p>
+<div class="admonition seealso">
+<p class="first admonition-title">参考</p>
+<p class="last"><a class="reference internal" href="usage/execution.html#failures"><em>Failure handling (usage documentation)</em></a></p>
+</div>
+<div class="section" id="failure-handling">
+<h3>失敗の扱い<a class="headerlink" href="#failure-handling" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>さて、これを柔軟にしてユーザーに選択をさせるにはどうすれいいでしょう? <a class="reference internal" href="usage/env.html#warn-only"><em>warn_only</em></a> と呼ばれる設定(もしくは <strong>environment variable</strong>、通常は短く <strong>env var</strong>)が停止を警告に変え、柔軟なエラーの扱いを可能にします。</p>
+<p><tt class="docutils literal"><span class="pre">test</span></tt> 関数でこの設定を有効にして、<a class="reference internal" href="api/core/operations.html#fabric.operations.local" title="fabric.operations.local"><tt class="xref py py-obj docutils literal"><span class="pre">local</span></tt></a> 呼び出しの結果を調べて見ましょう:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">with_statement</span>
+<span class="kn">from</span> <span class="nn">fabric.api</span> <span class="kn">import</span> <span class="n">local</span><span class="p">,</span> <span class="n">settings</span><span class="p">,</span> <span class="n">abort</span>
+<span class="kn">from</span> <span class="nn">fabric.contrib.console</span> <span class="kn">import</span> <span class="n">confirm</span>
+
+<span class="k">def</span> <span class="nf">test</span><span class="p">():</span>
+    <span class="k">with</span> <span class="n">settings</span><span class="p">(</span><span class="n">warn_only</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">local</span><span class="p">(</span><span class="s">&#39;./manage.py test my_app&#39;</span><span class="p">,</span> <span class="n">capture</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">failed</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">confirm</span><span class="p">(</span><span class="s">&quot;Tests failed. Continue anyway?&quot;</span><span class="p">):</span>
+        <span class="n">abort</span><span class="p">(</span><span class="s">&quot;Aborting at user request.&quot;</span><span class="p">)</span>
+
+<span class="p">[</span><span class="o">...</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>この新しい機能を追加するにあたり、新しいことをたくさん導入しました:</p>
+<ul class="simple">
+<li><p class="first">Python 2.5 では <tt class="docutils literal"><span class="pre">with:</span></tt> を使うために <tt class="docutils literal"><span class="pre">__future__</span></tt> のインポートが必要です。</p>
+</li>
+<li><p class="first">Fabricの <a class="reference internal" href="api/contrib/console.html#module-fabric.contrib.console" title="fabric.contrib.console"><tt class="xref py py-obj docutils literal"><span class="pre">contrib.console</span></tt></a> サブモジュールは <a class="reference internal" href="api/contrib/console.html#fabric.contrib.console.confirm" title="fabric.contrib.console.confirm"><tt class="xref py py-obj docutils literal"><span class="pre">confirm</span></tt></a> 関数を含んでいて、簡単なイエス/ノープロンプトに使われます。</p>
+</li>
+<li><p class="first"><a class="reference internal" href="api/core/context_managers.html#fabric.context_managers.settings" title="fabric.context_managers.settings"><tt class="xref py py-obj docutils literal"><span class="pre">settings</span></tt></a> コンテキストマネージャーはコードの特定のブロックに設定を適用するのに使われます。</p>
+</li>
+<li><p class="first"><a class="reference internal" href="api/core/operations.html#fabric.operations.local" title="fabric.operations.local"><tt class="xref py py-obj docutils literal"><span class="pre">local</span></tt></a> のようなコマンドランニング操作は、その結果(<tt class="docutils literal"><span class="pre">.failed</span></tt> や <tt class="docutils literal"><span class="pre">.return_code</span></tt> など) に関する情報を含むオブジェクトを返すことができます。</p>
+</li>
+<li><p class="first">そして <a class="reference internal" href="api/core/utils.html#fabric.utils.abort" title="fabric.utils.abort"><tt class="xref py py-obj docutils literal"><span class="pre">abort</span></tt></a> 関数は手動で停止を実行するために使われます。</p>
+</li>
+</ul>
+<p>とは言え、この追加的な複雑性を別にすれば、理解するのは依然としてとても簡単で、さらに柔軟になりました。</p>
+<div class="admonition seealso">
+<p class="first admonition-title">参考</p>
+<p class="last"><a class="reference internal" href="api/core/context_managers.html"><em>Context Managers</em></a>, <a class="reference internal" href="usage/env.html#env-vars"><em>Full list of env vars</em></a></p>
+</div>
+</div>
+</div>
+<div class="section" id="making-connections">
+<h2>接続する<a class="headerlink" href="#making-connections" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>では今度は、肝心な部分を入れてfabfileを仕上げましょう。 <tt class="docutils literal"><span class="pre">deploy</span></tt> タスクは一つもしくは複数のリモートサーバーで実行され、コードが確実に最新になるにようにします:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">deploy</span><span class="p">():</span>
+    <span class="n">code_dir</span> <span class="o">=</span> <span class="s">&#39;/srv/django/myproject&#39;</span>
+    <span class="k">with</span> <span class="n">cd</span><span class="p">(</span><span class="n">code_dir</span><span class="p">):</span>
+        <span class="n">run</span><span class="p">(</span><span class="s">&quot;git pull&quot;</span><span class="p">)</span>
+        <span class="n">run</span><span class="p">(</span><span class="s">&quot;touch app.wsgi&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>今回もまた、たくさんの新しいコンセプトが導入されています:</p>
+<ul class="simple">
+<li><p class="first">FabricはただのPythonです。したがって、変数や文字列の操作などの通常のPythonコードの概念を自由に利用することができます。</p>
+</li>
+<li><p class="first"><a class="reference internal" href="api/core/context_managers.html#fabric.context_managers.cd" title="fabric.context_managers.cd"><tt class="xref py py-obj docutils literal"><span class="pre">cd</span></tt></a> はコマンドに``cd /どこ/かの/ディレクトリ`` 呼び出しを追加する簡単な方法です。これは同じことをローカルで実行する <a class="reference internal" href="api/core/context_managers.html#fabric.context_managers.lcd" title="fabric.context_managers.lcd"><tt class="xref py py-obj docutils literal"><span class="pre">lcd</span></tt></a> と似ています。</p>
+</li>
+<li><p class="first"><a class="reference internal" href="api/core/operations.html#fabric.operations.run" title="fabric.operations.run"><tt class="xref py py-obj docutils literal"><span class="pre">run</span></tt></a> は <a class="reference internal" href="api/core/operations.html#fabric.operations.local" title="fabric.operations.local"><tt class="xref py py-obj docutils literal"><span class="pre">local</span></tt></a> に似ていますが、ローカルではなく <strong>リモートで</strong> 動作します。</p>
+</li>
+</ul>
+<p>また、ファイルの一番上で新しい関数を確実にインポートするようにします:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">with_statement</span>
+<span class="kn">from</span> <span class="nn">fabric.api</span> <span class="kn">import</span> <span class="n">local</span><span class="p">,</span> <span class="n">settings</span><span class="p">,</span> <span class="n">abort</span><span class="p">,</span> <span class="n">run</span><span class="p">,</span> <span class="n">cd</span>
+<span class="kn">from</span> <span class="nn">fabric.contrib.console</span> <span class="kn">import</span> <span class="n">confirm</span>
+</pre></div>
+</div>
+<p>これらを変更したら、デプロイしてみましょう:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ fab deploy
+No hosts found. Please specify (single) host string for connection: my_server
+[my_server] run: git pull
+[my_server] out: Already up-to-date.
+[my_server] out:
+[my_server] run: touch app.wsgi
+
+Done.
+</pre></div>
+</div>
+<p>このfabfileでは接続情報は指定していません。したがって、Fabricはどのホスト(複数可)でこのリモートコマンドが実行されるべきなのかが分かりません。このようなとき、Fabricは起動時に入力を促します。接続定義はSSHのような &#8220;ホスト文字列&#8221; (例えば <tt class="docutils literal"><span class="pre">user&#64;host:port</span></tt>)を使い、デフォルトではローカルのユーザー名が使われます。そのため、この例では単にホスト名 <tt class="docutils literal"><span class="pre">my_server</span></tt> だけを指定しています。</p>
+<div class="section" id="remote-interactivity">
+<h3>リモートとの双方向性<a class="headerlink" href="#remote-interactivity" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>チェックアウトしたソースコードがすでにあるのなら <tt class="docutils literal"><span class="pre">git</span> <span class="pre">pull</span></tt> で問題ないでしょう。しかし最初のデプロイだったらどうでしょう? そうしたケースも扱えて、最初の <tt class="docutils literal"><span class="pre">git</span> <span class="pre">clone</span></tt> も実行するようにするといいでしょう:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">deploy</span><span class="p">():</span>
+    <span class="n">code_dir</span> <span class="o">=</span> <span class="s">&#39;/srv/django/myproject&#39;</span>
+    <span class="k">with</span> <span class="n">settings</span><span class="p">(</span><span class="n">warn_only</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">run</span><span class="p">(</span><span class="s">&quot;test -d </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">code_dir</span><span class="p">)</span><span class="o">.</span><span class="n">failed</span><span class="p">:</span>
+            <span class="n">run</span><span class="p">(</span><span class="s">&quot;git clone user@vcshost:/path/to/repo/.git </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">code_dir</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">cd</span><span class="p">(</span><span class="n">code_dir</span><span class="p">):</span>
+        <span class="n">run</span><span class="p">(</span><span class="s">&quot;git pull&quot;</span><span class="p">)</span>
+        <span class="n">run</span><span class="p">(</span><span class="s">&quot;touch app.wsgi&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>上の <a class="reference internal" href="api/core/operations.html#fabric.operations.local" title="fabric.operations.local"><tt class="xref py py-obj docutils literal"><span class="pre">local</span></tt></a> との場合と同じように <a class="reference internal" href="api/core/operations.html#fabric.operations.run" title="fabric.operations.run"><tt class="xref py py-obj docutils literal"><span class="pre">run</span></tt></a> もまた、シェルコマンドの実行をベースにきれいなPythonレベルのロジックを組み立てることができます。しかし、ここでの興味深い部分は <tt class="docutils literal"><span class="pre">git</span> <span class="pre">clone</span></tt> 呼び出しで、Gitサーバ上のリポジトリへのアクセスにGitのSSHメソッドを利用します。つまりリモートの <a class="reference internal" href="api/core/operations.html#fabric.operations.run" title="fabric.operations.run"><tt class="xref py py-obj docutils literal"><span class="pre">run</span></tt></a> 呼び出しは、自身の認証を必要とするのです。</p>
+<p>Fabricの以前のバージョン(と、同じようなハイレベルなSSHライブラリ)では、リモートプログラムのの実行は中途半端な状態で、ローカル側からは触れませんでした。これはパスワードの入力が本当に必要な場合やリモートプログラムとの情報のやりとりが必要な場合に解決が難しい問題でした。</p>
+<p>Fabric 1.0以降ではこの問題を解決し、リモート側と常にやりとりできることを確保しています。では、Gitチェックアウトがないときに新しいサーバー上でアップデートした <tt class="docutils literal"><span class="pre">deploy</span></tt> タスクを実行したときに何が起こるか見てみましょう:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ fab deploy
+No hosts found. Please specify (single) host string for connection: my_server
+[my_server] run: test -d /srv/django/myproject
+
+Warning: run() encountered an error (return code 1) while executing &#39;test -d /srv/django/myproject&#39;
+
+[my_server] run: git clone user@vcshost:/path/to/repo/.git /srv/django/myproject
+[my_server] out: Cloning into /srv/django/myproject...
+[my_server] out: Password: &lt;enter password&gt;
+[my_server] out: remote: Counting objects: 6698, done.
+[my_server] out: remote: Compressing objects: 100% (2237/2237), done.
+[my_server] out: remote: Total 6698 (delta 4633), reused 6414 (delta 4412)
+[my_server] out: Receiving objects: 100% (6698/6698), 1.28 MiB, done.
+[my_server] out: Resolving deltas: 100% (4633/4633), done.
+[my_server] out:
+[my_server] run: git pull
+[my_server] out: Already up-to-date.
+[my_server] out:
+[my_server] run: touch app.wsgi
+
+Done.
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">Password:</span></tt> プロンプトは、ウェブサーバ上のリモートの <tt class="docutils literal"><span class="pre">git</span></tt> 呼び出しで、Gitサーバーへのパスワードへの問い合わせであることに留意してください。パスワードをここで入力することができ、クローンは通常のように継続されます。</p>
+<div class="admonition seealso">
+<p class="first admonition-title">参考</p>
+<p class="last"><a class="reference internal" href="usage/interactivity.html"><em>Interaction with remote programs</em></a></p>
+</div>
+</div>
+<div class="section" id="defining-connections-beforehand">
+<span id="defining-connections"></span><h3>予め接続を定義する<a class="headerlink" href="#defining-connections-beforehand" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>起動時に接続情報を指定するのはすぐにうんざりしてくると思います。そのためFabricでは、fabfile内やコマンドライン上でこれを行うためのたくさんの手段を提供しています。ここではすべてをカバーしませんが、もっともよくある手段、グローバルなホストリストの設定 <a class="reference internal" href="usage/env.html#hosts"><em>env.hosts</em></a> をお見せしましょう。</p>
+<p><a class="reference internal" href="usage/env.html"><em>env</em></a> はFabricのたくさんの設定を操作するグローバルな辞書のようなオブジェクトで、さらに属性とともに書くことも可能です。(実際のところ、上にみられるように <a class="reference internal" href="api/core/context_managers.html#fabric.context_managers.settings" title="fabric.context_managers.settings"><tt class="xref py py-obj docutils literal"><span class="pre">settings</span></tt></a> はこれの単なるラッパーです)したがって、モジュールレベルで、自分のfabfileの一番上に近いところで次のように変更が可能です:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">with_statement</span>
+<span class="kn">from</span> <span class="nn">fabric.api</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">fabric.contrib.console</span> <span class="kn">import</span> <span class="n">confirm</span>
+
+<span class="n">env</span><span class="o">.</span><span class="n">hosts</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;my_server&#39;</span><span class="p">]</span>
+
+<span class="k">def</span> <span class="nf">test</span><span class="p">():</span>
+    <span class="n">do_test_stuff</span><span class="p">()</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">fab</span></tt> がfabfileを読み込むとき、今回変更した <tt class="docutils literal"><span class="pre">env</span></tt> が実行され、設定の変更を格納します。その結果は上の通りになり、<tt class="docutils literal"><span class="pre">deploy</span></tt> タスクが <tt class="docutils literal"><span class="pre">my_server</span></tt> に対して実行されます。</p>
+<p>また、このようにして、Fabricに対して一度に複数のリモートシステム上で実行させることもできます。<tt class="docutils literal"><span class="pre">env.hosts</span></tt> はリストなので <tt class="docutils literal"><span class="pre">fab</span></tt> はこのリストを順に処理し、各接続に対して与えられたタスクを呼び出します。</p>
+<div class="admonition seealso">
+<p class="first admonition-title">参考</p>
+<p class="last"><a class="reference internal" href="usage/env.html"><em>The environment dictionary, env</em></a>, <a class="reference internal" href="usage/execution.html#host-lists"><em>How host lists are constructed</em></a></p>
+</div>
+</div>
+</div>
+<div class="section" id="conclusion">
+<h2>まとめ<a class="headerlink" href="#conclusion" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>完成したfabfileは、それでもかなり短いものです。全体では以下になります:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">with_statement</span>
+<span class="kn">from</span> <span class="nn">fabric.api</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">fabric.contrib.console</span> <span class="kn">import</span> <span class="n">confirm</span>
+
+<span class="n">env</span><span class="o">.</span><span class="n">hosts</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;my_server&#39;</span><span class="p">]</span>
+
+<span class="k">def</span> <span class="nf">test</span><span class="p">():</span>
+    <span class="k">with</span> <span class="n">settings</span><span class="p">(</span><span class="n">warn_only</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">local</span><span class="p">(</span><span class="s">&#39;./manage.py test my_app&#39;</span><span class="p">,</span> <span class="n">capture</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">failed</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">confirm</span><span class="p">(</span><span class="s">&quot;Tests failed. Continue anyway?&quot;</span><span class="p">):</span>
+        <span class="n">abort</span><span class="p">(</span><span class="s">&quot;Aborting at user request.&quot;</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">commit</span><span class="p">():</span>
+    <span class="n">local</span><span class="p">(</span><span class="s">&quot;git add -p &amp;&amp; git commit&quot;</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">push</span><span class="p">():</span>
+    <span class="n">local</span><span class="p">(</span><span class="s">&quot;git push&quot;</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">prepare_deploy</span><span class="p">():</span>
+    <span class="n">test</span><span class="p">()</span>
+    <span class="n">commit</span><span class="p">()</span>
+    <span class="n">push</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">deploy</span><span class="p">():</span>
+    <span class="n">code_dir</span> <span class="o">=</span> <span class="s">&#39;/srv/django/myproject&#39;</span>
+    <span class="k">with</span> <span class="n">settings</span><span class="p">(</span><span class="n">warn_only</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">run</span><span class="p">(</span><span class="s">&quot;test -d </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">code_dir</span><span class="p">)</span><span class="o">.</span><span class="n">failed</span><span class="p">:</span>
+            <span class="n">run</span><span class="p">(</span><span class="s">&quot;git clone user@vcshost:/path/to/repo/.git </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">code_dir</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">cd</span><span class="p">(</span><span class="n">code_dir</span><span class="p">):</span>
+        <span class="n">run</span><span class="p">(</span><span class="s">&quot;git pull&quot;</span><span class="p">)</span>
+        <span class="n">run</span><span class="p">(</span><span class="s">&quot;touch app.wsgi&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>このfabfileはFabricの機能セットのうちのかなりの部分を利用しています:</p>
+<ul class="simple">
+<li><p class="first">fabfileのタスクを定義し、それを <a class="reference internal" href="usage/fab.html"><em>fab</em></a> で実行</p>
+</li>
+<li><p class="first"><a class="reference internal" href="api/core/operations.html#fabric.operations.local" title="fabric.operations.local"><tt class="xref py py-obj docutils literal"><span class="pre">local</span></tt></a> でローカルのシェルコマンドを呼び出し</p>
+</li>
+<li><p class="first"><a class="reference internal" href="api/core/context_managers.html#fabric.context_managers.settings" title="fabric.context_managers.settings"><tt class="xref py py-obj docutils literal"><span class="pre">settings</span></tt></a> で env 変数を変更</p>
+</li>
+<li><p class="first">コマンド失敗の扱い、ユーザーにプロンプト表示、手動アボート</p>
+</li>
+<li><p class="first">ホストリストの定義と <a class="reference internal" href="api/core/operations.html#fabric.operations.run" title="fabric.operations.run"><tt class="xref py py-obj docutils literal"><span class="pre">run</span></tt></a> のリモートコマンド実行</p>
+</li>
+</ul>
+<p>とは言え、ここではカバーしていないこともまだたくさんあります ! ぜひさまざまな &#8220;see also&#8221; リンクをたどってみてください。また、 <a class="reference internal" href="index.html#documentation-index"><em>the main index page</em></a> のドキュメンテーションの目次もチェックしてみてください。</p>
+<p>読んでくれて、ありがとうございます !</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+
+
+<h3>Project Versions</h3>
+<ul id="sidebar_versions">
+    
+    
+    <li><a href="/en/1.8.0/">1.8.0</a></li>
+    
+    
+    
+    <li><a href="/en/1.7.0/">1.7.0</a></li>
+    
+    
+    
+    <li><a href="/en/1.6.2/">1.6.2</a></li>
+    
+    
+    
+    <li><a href="/en/1.6.1/">1.6.1</a></li>
+    
+    
+    
+    <li><a href="/en/1.6.0/">1.6.0</a></li>
+    
+    
+    
+    <li><a href="/en/1.5.4/">1.5.4</a></li>
+    
+    
+    
+    <li><a href="/en/1.5.3/">1.5.3</a></li>
+    
+    
+    
+    <li><a href="/en/1.5.2/">1.5.2</a></li>
+    
+    
+    
+    <li><a href="/en/1.5.1/">1.5.1</a></li>
+    
+    
+    
+    <li><a href="/en/1.5.0/">1.5.0</a></li>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</ul>
+
+
+  <h3><a href="index.html">目次</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">概要とチュートリアル</a><ul>
+<li><a class="reference internal" href="#what-is-fabric">Fabricとは ?</a></li>
+<li><a class="reference internal" href="#hello-fab">Hello, <tt class="docutils literal"><span class="pre">fab</span></tt></a></li>
+<li><a class="reference internal" href="#task-arguments">タスク引数</a></li>
+<li><a class="reference internal" href="#local-commands">ローカルコマンド</a></li>
+<li><a class="reference internal" href="#organize-it-your-way">好きなように構造化する</a></li>
+<li><a class="reference internal" href="#failure">失敗</a><ul>
+<li><a class="reference internal" href="#failure-handling">失敗の扱い</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#making-connections">接続する</a><ul>
+<li><a class="reference internal" href="#remote-interactivity">リモートとの双方向性</a></li>
+<li><a class="reference internal" href="#defining-connections-beforehand">予め接続を定義する</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#conclusion">まとめ</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="index.html"
+                        title="前の章へ">Fabric</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="installation.html"
+                        title="次の章へ">インストール</a></p>
+  <h3>このページ</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/tutorial.txt"
+           rel="nofollow">ソースコードを表示</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>クイック検索</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="検索" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    モジュール、クラス、または関数名を入力してください
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="installation.html" title="インストール"
+             >次へ</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Fabric"
+             >前へ</a> |</li>
+        <li><a href="index.html">Fabric 1.8.1 ドキュメント</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Christian Vest Hansen and Jeffrey E. Forcier.
+      このドキュメントは <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.1 で生成しました。
+    </div>
+  </body>
+</html>

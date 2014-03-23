@@ -1,0 +1,357 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>txutil: transifex utility for Sphinx &mdash; Fabric 1.8.1 ドキュメント</title>
+    
+    <link rel="stylesheet" href="../_static/rtd.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.8.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/translations.js"></script>
+    <link rel="top" title="Fabric 1.8.1 ドキュメント" href="../index.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-18486793-1']);
+  _gaq.push(['_setDomainName', '.fabfile.org']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li><a href="../index.html">Fabric 1.8.1 ドキュメント</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="txutil-transifex-utility-for-sphinx">
+<h1>txutil: transifex utility for Sphinx<a class="headerlink" href="#txutil-transifex-utility-for-sphinx" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<p><tt class="xref py py-obj docutils literal"><span class="pre">txutil</span></tt> is a Transifex utility tool that provides several features that make it easy to use the Transifex service for translation with Sphinx.</p>
+<p>BTW, this tool is focused on transifex and is dependent on transifex_client external library and polib external library.</p>
+<div class="section" id="features">
+<h2>Features<a class="headerlink" href="#features" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<ul class="simple">
+<li>create .transifexrc file from environment variable, without interactive input.</li>
+<li>create .tx/config file without interactive input.</li>
+<li>update .tx/config file from locale/pot files automatically.</li>
+<li>build mo files from po files in the locale directory.</li>
+</ul>
+<p>You need to use <tt class="xref py py-obj docutils literal"><span class="pre">tx</span></tt> command for below features:</p>
+<ul class="simple">
+<li><tt class="xref py py-obj docutils literal"><span class="pre">tx</span> <span class="pre">push</span> <span class="pre">-s</span></tt> : push pot (translation catalogs) to transifex.</li>
+<li><tt class="xref py py-obj docutils literal"><span class="pre">tx</span> <span class="pre">pull</span> <span class="pre">-l</span> <span class="pre">ja</span></tt> : pull po (translated catalogs) from transifex.</li>
+</ul>
+</div>
+<div class="section" id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<ul class="simple">
+<li>Python 2.5, 2.6, 2.7. (depends transifex_client that only support 2.x)</li>
+<li><a class="reference external" href="https://pypi.python.org/pypi/pip">pip</a> 1.2 or later.</li>
+<li>Your <a class="reference external" href="https://transifex.com">transifex</a> account if you want to download po files from transifex
+or you want to translate on transifex.</li>
+</ul>
+</div>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>Recommend strongly: use virtualenv for this procedure.</p>
+<div class="highlight-python"><div class="highlight"><pre>$ pip install https://bitbucket.org/shimizukawa/sphinx-transifex/get/default.zip
+</pre></div>
+</div>
+</div>
+<div class="section" id="commands-options-environment-variables">
+<h2>Commands, options, environment variables<a class="headerlink" href="#commands-options-environment-variables" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>Type <tt class="xref py py-obj docutils literal"><span class="pre">txutil</span></tt> without arguments, options.</p>
+</div>
+<div class="section" id="setup-environment-for-tx-command">
+<h2>Setup environment for <tt class="xref py py-obj docutils literal"><span class="pre">tx</span></tt> command<a class="headerlink" href="#setup-environment-for-tx-command" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>Set environments:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ export TXUTIL_TRANSIFEX_USERNAME=&lt;YOUR TRANSIFEX ACCOUNT USERNAME&gt;
+$ export TXUTIL_TRANSIFEX_PASSWORD=&lt;YOUR TRANSIFEX ACCOUNT PASSWORD&gt;
+</pre></div>
+</div>
+<p>Create <tt class="docutils literal"><span class="pre">~/.transifexrc</span></tt> file for <a class="reference external" href="https://transifex.com">transifex</a> account settings:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ txutil create-transifexrc
+</pre></div>
+</div>
+<p>Create <tt class="docutils literal"><span class="pre">.tx/config</span></tt> for transifex project setings:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ txutil create-txconfig
+</pre></div>
+</div>
+<p>Add below settings to sphinx document&#8217;s conf.py if not exists:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">locale_dirs</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;locale/&#39;</span><span class="p">]</span>   <span class="c">#for example</span>
+<span class="n">gettext_compact</span> <span class="o">=</span> <span class="bp">False</span>     <span class="c">#optional</span>
+</pre></div>
+</div>
+<p>Build document&#8217;s pot files and auto setup transifex resource config:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ make gettext
+$ mkdir locale
+$ cp -R _build/locale locale/pot
+$ txutil update-txconfig-resources --locale-dirs=locale
+</pre></div>
+</div>
+<p>Done. You got .tx/config for the document translation project.</p>
+</div>
+<div class="section" id="make-new-translation-team-for-new-language">
+<h2>Make new translation team for new language<a class="headerlink" href="#make-new-translation-team-for-new-language" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<ol class="arabic simple">
+<li>login to <a class="reference external" href="https://transifex.com">transifex</a> service.</li>
+<li>go to <a class="reference external" href="https://www.transifex.com/projects/p/sphinx-doc-1_2_0/">sphinx translation page</a>.</li>
+<li>push <tt class="docutils literal"><span class="pre">Request</span> <span class="pre">language</span></tt> and fill form.</li>
+<li>wait acceptance by transifex sphinx translation maintainers.</li>
+<li>(after acceptance) translate on transifex.</li>
+</ol>
+</div>
+<div class="section" id="make-translated-document">
+<h2>Make translated document<a class="headerlink" href="#make-translated-document" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>Get translated catalogs and build mo files (ex. for &#8216;ja&#8217;):</p>
+<div class="highlight-python"><div class="highlight"><pre>$ tx pull -l ja
+$ txutil --locale-dirs=locale build-mo
+</pre></div>
+</div>
+<p>Build html (ex. for &#8216;ja&#8217;):</p>
+<div class="highlight-python"><div class="highlight"><pre>$ make -e SPHINXOPTS=&quot;-D language=&#39;ja&#39;&quot; html
+</pre></div>
+</div>
+<p>Done.</p>
+</div>
+<div class="section" id="forward-the-translation">
+<h2>Forward the translation<a class="headerlink" href="#forward-the-translation" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<ol class="arabic simple">
+<li>login to <a class="reference external" href="https://transifex.com">transifex</a> service.</li>
+<li>go to <a class="reference external" href="https://www.transifex.com/projects/p/sphinx-doc-1_2_0/">sphinx translation page</a>.</li>
+<li>click language name (ex. &#8216;Japanese&#8217;) you want to translate.</li>
+<li>click document name (ex. &#8216;domains&#8217;) you want to translate.</li>
+<li>click start. The document will be locked in order to avoid conflicts.</li>
+<li>click save-exit. Please don&#8217;t leave the page without save-exit.</li>
+<li>go to 4.</li>
+</ol>
+</div>
+<div class="section" id="upload-local-translated-po-files-to-transifex">
+<h2>Upload local translated po files to transifex<a class="headerlink" href="#upload-local-translated-po-files-to-transifex" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>If you want to push all language&#8217;s po files, you can use <tt class="xref py py-obj docutils literal"><span class="pre">tx</span> <span class="pre">push</span> <span class="pre">-t</span></tt>.
+(this operatoin overwrite translations in transifex.)</p>
+<div class="highlight-python"><div class="highlight"><pre>$ tx push -t -l ja
+</pre></div>
+</div>
+</div>
+<div class="section" id="upload-pot-files-to-transifex-server">
+<h2>Upload pot files to transifex server<a class="headerlink" href="#upload-pot-files-to-transifex-server" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>If pot files are updated, you need to push your new pot files to transifex.</p>
+<div class="highlight-python"><div class="highlight"><pre>$ make gettext
+$ mkdir locale
+$ cp -R _build/locale locale/pot
+$ txutil update-txconfig-resources --locale-dirs=locale
+$ tx push -s
+</pre></div>
+</div>
+<p>After this operation, you can get merged po files by using <tt class="xref py py-obj docutils literal"><span class="pre">tx</span> <span class="pre">pull</span> <span class="pre">-l</span> <span class="pre">ja</span></tt> command.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+
+
+<h3>Project Versions</h3>
+<ul id="sidebar_versions">
+    
+    
+    <li><a href="/en/1.8.0/">1.8.0</a></li>
+    
+    
+    
+    <li><a href="/en/1.7.0/">1.7.0</a></li>
+    
+    
+    
+    <li><a href="/en/1.6.2/">1.6.2</a></li>
+    
+    
+    
+    <li><a href="/en/1.6.1/">1.6.1</a></li>
+    
+    
+    
+    <li><a href="/en/1.6.0/">1.6.0</a></li>
+    
+    
+    
+    <li><a href="/en/1.5.4/">1.5.4</a></li>
+    
+    
+    
+    <li><a href="/en/1.5.3/">1.5.3</a></li>
+    
+    
+    
+    <li><a href="/en/1.5.2/">1.5.2</a></li>
+    
+    
+    
+    <li><a href="/en/1.5.1/">1.5.1</a></li>
+    
+    
+    
+    <li><a href="/en/1.5.0/">1.5.0</a></li>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</ul>
+
+
+  <h3><a href="../index.html">目次</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">txutil: transifex utility for Sphinx</a><ul>
+<li><a class="reference internal" href="#features">Features</a></li>
+<li><a class="reference internal" href="#requirements">Requirements</a></li>
+<li><a class="reference internal" href="#installation">Installation</a></li>
+<li><a class="reference internal" href="#commands-options-environment-variables">Commands, options, environment variables</a></li>
+<li><a class="reference internal" href="#setup-environment-for-tx-command">Setup environment for <tt class="docutils literal"><span class="pre">tx</span></tt> command</a></li>
+<li><a class="reference internal" href="#make-new-translation-team-for-new-language">Make new translation team for new language</a></li>
+<li><a class="reference internal" href="#make-translated-document">Make translated document</a></li>
+<li><a class="reference internal" href="#forward-the-translation">Forward the translation</a></li>
+<li><a class="reference internal" href="#upload-local-translated-po-files-to-transifex">Upload local translated po files to transifex</a></li>
+<li><a class="reference internal" href="#upload-pot-files-to-transifex-server">Upload pot files to transifex server</a></li>
+</ul>
+</li>
+</ul>
+
+  <h3>このページ</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/sphinx-transifex/README.txt"
+           rel="nofollow">ソースコードを表示</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>クイック検索</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="検索" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    モジュール、クラス、または関数名を入力してください
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li><a href="../index.html">Fabric 1.8.1 ドキュメント</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Christian Vest Hansen and Jeffrey E. Forcier.
+      このドキュメントは <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.1 で生成しました。
+    </div>
+  </body>
+</html>

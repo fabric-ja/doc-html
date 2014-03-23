@@ -1,0 +1,744 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>fab オプションと引数 &mdash; Fabric 1.8.1 ドキュメント</title>
+    
+    <link rel="stylesheet" href="../_static/rtd.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.8.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/translations.js"></script>
+    <link rel="top" title="Fabric 1.8.1 ドキュメント" href="../index.html" />
+    <link rel="next" title="Fabfile construction and use" href="fabfiles.html" />
+    <link rel="prev" title="実行モデル" href="execution.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-18486793-1']);
+  _gaq.push(['_setDomainName', '.fabfile.org']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="fabfiles.html" title="Fabfile construction and use"
+             accesskey="N">次へ</a> |</li>
+        <li class="right" >
+          <a href="execution.html" title="実行モデル"
+             accesskey="P">前へ</a> |</li>
+        <li><a href="../index.html">Fabric 1.8.1 ドキュメント</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="fab-options-and-arguments">
+<h1><tt class="docutils literal"><span class="pre">fab</span></tt> オプションと引数<a class="headerlink" href="#fab-options-and-arguments" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<p>Fabric の最も普通の使い方はコマンドライン・ツールとしてです。<tt class="docutils literal"><span class="pre">fab</span></tt> はFabricがインストールされた時にシェルの実行パスに置かれているはずです。 <tt class="docutils literal"><span class="pre">fab</span></tt> はUnixの良い住民になろうと努力しています。標準のコマンドライン・スイッチやヘルプ出力など。</p>
+<div class="section" id="basic-use">
+<h2>基本的な使い方<a class="headerlink" href="#basic-use" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>最もシンプルなものでは <tt class="docutils literal"><span class="pre">fab</span></tt> は全くオプションなしで、あるいは1つか2つのタスク名を引数として呼ばれます。例えば:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ fab task1 task2
+</pre></div>
+</div>
+<p>As detailed in <a class="reference internal" href="../tutorial.html"><em>概要とチュートリアル</em></a> and <a class="reference internal" href="execution.html"><em>実行モデル</em></a>, this will run <tt class="docutils literal"><span class="pre">task1</span></tt>
+followed by <tt class="docutils literal"><span class="pre">task2</span></tt>, assuming that Fabric was able to find a fabfile nearby
+containing Python functions with those names.</p>
+<p>しかしオプションやそれぞれのタスクに渡される引数を使ってさらにフレキシブルに拡張することができます。</p>
+</div>
+<div class="section" id="arbitrary-remote-shell-commands">
+<span id="arbitrary-commands"></span><h2>任意のリモートシェル・コマンド<a class="headerlink" href="#arbitrary-remote-shell-commands" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 0.9.2 で追加.</span></p>
+</div>
+<p>Fabric はあまり知られていないコマンドラインの記述で次のように呼ぶこともできます:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ fab [options] -- [shell command]
+</pre></div>
+</div>
+<p>where everything after the <tt class="docutils literal"><span class="pre">--</span></tt> is turned into a temporary
+<a class="reference internal" href="../api/core/operations.html#fabric.operations.run" title="fabric.operations.run"><tt class="xref py py-obj docutils literal"><span class="pre">run</span></tt></a> call, and is not parsed for <tt class="docutils literal"><span class="pre">fab</span></tt> options. If you&#8217;ve
+defined a host list at the module level or on the command line, this usage will
+act like a one-line anonymous task.</p>
+<p>例えばシステムのカーネル情報をまとめて取得するにはこの様にします:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ fab -H system1,system2,system3 -- uname -a
+</pre></div>
+</div>
+<p>これは以下の fabfile と同じです:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">fabric.api</span> <span class="kn">import</span> <span class="n">run</span>
+
+<span class="k">def</span> <span class="nf">anonymous</span><span class="p">():</span>
+    <span class="n">run</span><span class="p">(</span><span class="s">&quot;uname -a&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>まるでこれが実行されたように:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ fab -H system1,system2,system3 anonymous
+</pre></div>
+</div>
+<p>ほとんどの場合タスクは fabfile に書くことになるでしょう。(一度使ったものは、もう一度使うことになるでしょうから) しかしこの機能は fabfile の接続設定を利用している時にで手軽ですばやく SSH-borne コマンドを実行できます。</p>
+</div>
+<div class="section" id="command-line-options">
+<span id="id1"></span><h2>コマンドライン・オプション<a class="headerlink" href="#command-line-options" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>利用可能なコマンドライン・オプションの概要は <tt class="docutils literal"><span class="pre">fab</span> <span class="pre">--help</span></tt> で表示できます。オプションの詳細は以下です。</p>
+<div class="admonition note">
+<p class="first admonition-title">ノート</p>
+<p class="last"><tt class="docutils literal"><span class="pre">fab</span></tt> は Python の <tt class="xref py py-obj docutils literal"><span class="pre">optparse</span></tt> ライブラリを使います。これは Linux や GNU スタイルのショートやロングオプションが使えるということです。また自由にオプションと引数を使えます。例えば <tt class="docutils literal"><span class="pre">fab</span> <span class="pre">task1</span> <span class="pre">-H</span> <span class="pre">hostname</span> <span class="pre">task2</span> <span class="pre">-i</span> <span class="pre">path/to/keyfile</span></tt> はもっとわかりやすく <tt class="docutils literal"><span class="pre">fab</span> <span class="pre">-H</span> <span class="pre">hostname</span> <span class="pre">-i</span> <span class="pre">path/to/keyfile</span> <span class="pre">task1</span> <span class="pre">task2</span></tt> と書けます。</p>
+</div>
+<dl class="cmdoption">
+<dt id="cmdoption-a">
+<tt class="descname">-a</tt><tt class="descclassname"></tt><tt class="descclassname">, </tt><tt class="descname">--no_agent</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption-a" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="env.html#no-agent"><em>env.no_agent</em></a> を <tt class="docutils literal"><span class="pre">True</span></tt> にセット。SSH レイヤーにプライベートキーをアンロックするときに SSH エージェントと接続しないように強制します。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 0.9.1 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="cmdoption">
+<dt id="cmdoption-A">
+<tt class="descname">-A</tt><tt class="descclassname"></tt><tt class="descclassname">, </tt><tt class="descname">--forward-agent</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption-A" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="env.html#forward-agent"><em>env.forward_agent</em></a> を <tt class="docutils literal"><span class="pre">True</span></tt> にセット。エージェントのフォワードを有効にします。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 1.4 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="cmdoption">
+<dt id="cmdoption--abort-on-prompts">
+<tt class="descname">--abort-on-prompts</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption--abort-on-prompts" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="env.html#abort-on-prompts"><em>env.abort_on_prompts</em></a> を <tt class="docutils literal"><span class="pre">True</span></tt> にセット。入力を要求されたら Fabric を中断するよう強制します。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 1.1 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="cmdoption">
+<dt id="cmdoption-c">
+<tt class="descname">-c</tt><tt class="descclassname"> RCFILE</tt><tt class="descclassname">, </tt><tt class="descname">--config</tt><tt class="descclassname">=RCFILE</tt><a class="headerlink" href="#cmdoption-c" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="env.html#rcfile"><em>env.rcfile</em></a> を指定のファイルにセット。Fabric はこれを起動時に読み込み環境変数を更新します。</p>
+</dd></dl>
+
+<dl class="cmdoption">
+<dt id="cmdoption-d">
+<tt class="descname">-d</tt><tt class="descclassname"> COMMAND</tt><tt class="descclassname">, </tt><tt class="descname">--display</tt><tt class="descclassname">=COMMAND</tt><a class="headerlink" href="#cmdoption-d" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>指定したタスクのドキュメント文字列をすべて表示します。タスクの関数のシグネチャーは表示しません。 ドキュメント文字列を説明に使うのは良いアイデアです。(They&#8217;re <em>always</em> a good idea, of course &#8211; just moreso here.)</p>
+</dd></dl>
+
+<dl class="cmdoption">
+<dt id="cmdoption--connection-attempts">
+<tt class="descname">--connection-attempts</tt><tt class="descclassname">=M</tt><tt class="descclassname">, </tt><tt class="descname">-n</tt><tt class="descclassname"> M</tt><a class="headerlink" href="#cmdoption--connection-attempts" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>接続を試みる回数を指定。<a class="reference internal" href="env.html#connection-attempts"><em>env.connection_attempts</em></a> をセットします。</p>
+<div class="admonition seealso">
+<p class="first admonition-title">参考</p>
+<p class="last"><a class="reference internal" href="env.html#connection-attempts"><em>env.connection_attempts</em></a>,
+<a class="reference internal" href="env.html#timeout"><em>env.timeout</em></a></p>
+</div>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 1.4 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="cmdoption">
+<dt id="cmdoption-D">
+<tt class="descname">-D</tt><tt class="descclassname"></tt><tt class="descclassname">, </tt><tt class="descname">--disable-known-hosts</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption-D" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="env.html#disable-known-hosts"><em>env.disable_known_hosts</em></a> を <tt class="docutils literal"><span class="pre">True</span></tt> にセット。Fabric はユーザーの SSH <tt class="file docutils literal"><span class="pre">known_hosts</span></tt> をロードしません。</p>
+</dd></dl>
+
+<dl class="cmdoption">
+<dt id="cmdoption-f">
+<tt class="descname">-f</tt><tt class="descclassname"> FABFILE</tt><tt class="descclassname">, </tt><tt class="descname">--fabfile</tt><tt class="descclassname">=FABFILE</tt><a class="headerlink" href="#cmdoption-f" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>fabfile を検索するパターン(デフォルトは <tt class="docutils literal"><span class="pre">fabfile.py</span></tt>)、あるいは fabfile としてロードする任意のファイルパス(例えば <tt class="docutils literal"><span class="pre">/path/to/my/fabfile.py</span></tt>)</p>
+<div class="admonition seealso">
+<p class="first admonition-title">参考</p>
+<p class="last"><a class="reference internal" href="fabfiles.html"><em>Fabfile construction and use</em></a></p>
+</div>
+</dd></dl>
+
+<dl class="cmdoption">
+<dt id="cmdoption-F">
+<tt class="descname">-F</tt><tt class="descclassname"> LIST_FORMAT</tt><tt class="descclassname">, </tt><tt class="descname">--list-format</tt><tt class="descclassname">=LIST_FORMAT</tt><a class="headerlink" href="#cmdoption-F" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#cmdoption-l"><em class="xref std std-option">--list</em></a> の出力フォーマットを制御します。. <tt class="docutils literal"><span class="pre">short</span></tt> は <a class="reference internal" href="#cmdoption--shortlist"><em class="xref std std-option">--shortlist</em></a> と同じ、 <tt class="docutils literal"><span class="pre">normal</span></tt> は単にこのオプションの省略と同じです(すなわちデフォルト)、そして <tt class="docutils literal"><span class="pre">nested</span></tt> はネストされた名前空間のツリーを出力します。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 1.1 で追加.</span></p>
+</div>
+<div class="admonition seealso">
+<p class="first admonition-title">参考</p>
+<p class="last"><a class="reference internal" href="#cmdoption--shortlist"><em class="xref std std-option">--shortlist</em></a>, <a class="reference internal" href="#cmdoption-l"><em class="xref std std-option">--list</em></a></p>
+</div>
+</dd></dl>
+
+<dl class="cmdoption">
+<dt id="cmdoption-g">
+<tt class="descname">-g</tt><tt class="descclassname"> HOST</tt><tt class="descclassname">, </tt><tt class="descname">--gateway</tt><tt class="descclassname">=HOST</tt><a class="headerlink" href="#cmdoption-g" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="env.html#gateway"><em>env.gateway</em></a> を <tt class="docutils literal"><span class="pre">HOST</span></tt> ホスト文字列にセット。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 1.5 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="cmdoption">
+<dt id="cmdoption-h">
+<tt class="descname">-h</tt><tt class="descclassname"></tt><tt class="descclassname">, </tt><tt class="descname">--help</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption-h" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>すべてのオプションと簡単な説明があるヘルプメッセージを表示して終了します。</p>
+</dd></dl>
+
+<dl class="cmdoption">
+<dt id="cmdoption--hide">
+<tt class="descname">--hide</tt><tt class="descclassname">=LEVELS</tt><a class="headerlink" href="#cmdoption--hide" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>デフォルトで隠すコンマで区切った <a class="reference internal" href="output_controls.html"><em>output levels</em></a> のリスト。</p>
+</dd></dl>
+
+<dl class="cmdoption">
+<dt id="cmdoption-H">
+<tt class="descname">-H</tt><tt class="descclassname"> HOSTS</tt><tt class="descclassname">, </tt><tt class="descname">--hosts</tt><tt class="descclassname">=HOSTS</tt><a class="headerlink" href="#cmdoption-H" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="env.html#hosts"><em>env.hosts</em></a> をコンマで区切ったホスト文字列のリストにセット。</p>
+</dd></dl>
+
+<dl class="cmdoption">
+<dt id="cmdoption-x">
+<tt class="descname">-x</tt><tt class="descclassname"> HOSTS</tt><tt class="descclassname">, </tt><tt class="descname">--exclude-hosts</tt><tt class="descclassname">=HOSTS</tt><a class="headerlink" href="#cmdoption-x" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>最終ホストリストの他に <a class="reference internal" href="env.html#exclude-hosts"><em>env.exclude_hosts</em></a> に与えられたコンまで区切ったホスト文字列のリストをセットします。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 1.1 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="cmdoption">
+<dt id="cmdoption-i">
+<tt class="descname">-i</tt><tt class="descclassname"> KEY_FILENAME</tt><a class="headerlink" href="#cmdoption-i" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ファイルのパスをセットすると SSH認証ファイルとしてロードします。(通常はプライベート鍵) このオプションは何度も繰り返されるかもしれません。<a class="reference internal" href="env.html#key-filename"><em>env.key_filename</em></a> にセット(あるいは追加)します。</p>
+</dd></dl>
+
+<dl class="cmdoption">
+<dt id="cmdoption-I">
+<tt class="descname">-I</tt><tt class="descclassname"></tt><tt class="descclassname">, </tt><tt class="descname">--initial-password-prompt</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption-I" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>pre-fill <a class="reference internal" href="env.html#password"><em>env.password</em></a> のためにセッション開始時にパスワードを要求するように強制します。(fabfile をロードしてオプションを解析してタスクを実行する直前)。</p>
+<p>これはパスワードを <a class="reference internal" href="#cmdoption-p"><em class="xref std std-option">--password</em></a> や fabfileの <a class="reference internal" href="env.html#password"><em>env.password</em></a> で設定したくない時に(特に実行時に入力が不可能な並行セッションで)走らせて放置(fire-and-forget)できるので便利です。</p>
+<div class="admonition note">
+<p class="first admonition-title">ノート</p>
+<p class="last">ここでの入力はモジュールレベルの <a class="reference internal" href="env.html#password"><em>env.password</em></a> や <a class="reference internal" href="#cmdoption-p"><em class="xref std std-option">--password</em></a> を <em>上書き</em> します。</p>
+</div>
+<div class="admonition seealso">
+<p class="first admonition-title">参考</p>
+<p class="last"><a class="reference internal" href="execution.html#password-management"><em>パスワード管理</em></a></p>
+</div>
+</dd></dl>
+
+<dl class="cmdoption">
+<dt id="cmdoption-k">
+<tt class="descname">-k</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption-k" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="env.html#no-keys"><em>env.no_keys</em></a> を <tt class="docutils literal"><span class="pre">True</span></tt> にセット。SSH レイヤーはホームのプライベート・キーファイルを探しません。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 0.9.1 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="cmdoption">
+<dt id="cmdoption--keepalive">
+<tt class="descname">--keepalive</tt><tt class="descclassname">=KEEPALIVE</tt><a class="headerlink" href="#cmdoption--keepalive" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="env.html#keepalive"><em>env.keepalive</em></a> を指定した整数にセット。SSH キープアライブの間隔を指定します。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 1.1 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="cmdoption">
+<dt id="cmdoption--linewise">
+<tt class="descname">--linewise</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption--linewise" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>出力バッファをバイトごとでなく行ごとに強制します。<a class="reference internal" href="parallel.html#linewise-output"><em>parallel execution</em></a> に有効でありまた必要になります。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 1.3 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="cmdoption">
+<dt id="cmdoption-l">
+<tt class="descname">-l</tt><tt class="descclassname"></tt><tt class="descclassname">, </tt><tt class="descname">--list</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption-l" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>通常通り fabfile をインポートして見つかったタスクのリストを表示して終了します。またタスクのドキュメント文字列の最初の行を表示します。必要なら切り詰めます。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 0.9.1 で変更: </span>出力にドキュメンテーション文字列(docstring)を追加。</p>
+</div>
+<div class="admonition seealso">
+<p class="first admonition-title">参考</p>
+<p class="last"><a class="reference internal" href="#cmdoption--shortlist"><em class="xref std std-option">--shortlist</em></a>, <a class="reference internal" href="#cmdoption-F"><em class="xref std std-option">--list-format</em></a></p>
+</div>
+</dd></dl>
+
+<dl class="cmdoption">
+<dt id="cmdoption-p">
+<tt class="descname">-p</tt><tt class="descclassname"> PASSWORD</tt><tt class="descclassname">, </tt><tt class="descname">--password</tt><tt class="descclassname">=PASSWORD</tt><a class="headerlink" href="#cmdoption-p" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="env.html#password"><em>env.password</em></a> を指定した文字列にセット。SSH接続や <tt class="docutils literal"><span class="pre">sudo</span></tt> プログラムで使うデフォルトのパスワードです。</p>
+<div class="admonition seealso">
+<p class="first admonition-title">参考</p>
+<p class="last"><a class="reference internal" href="#cmdoption-I"><em class="xref std std-option">--initial-password-prompt</em></a></p>
+</div>
+</dd></dl>
+
+<dl class="cmdoption">
+<dt id="cmdoption-P">
+<tt class="descname">-P</tt><tt class="descclassname"></tt><tt class="descclassname">, </tt><tt class="descname">--parallel</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption-P" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="env.html#env-parallel"><em>env.parallel</em></a> を <tt class="docutils literal"><span class="pre">True</span></tt> にセット。タスクを並行処理します。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 1.3 で追加.</span></p>
+</div>
+<div class="admonition seealso">
+<p class="first admonition-title">参考</p>
+<p class="last"><a class="reference internal" href="parallel.html"><em>Parallel execution</em></a></p>
+</div>
+</dd></dl>
+
+<dl class="cmdoption">
+<dt id="cmdoption--no-pty">
+<tt class="descname">--no-pty</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption--no-pty" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Sets <a class="reference internal" href="env.html#always-use-pty"><em>env.always_use_pty</em></a> to <tt class="docutils literal"><span class="pre">False</span></tt>, causing all
+<a class="reference internal" href="../api/core/operations.html#fabric.operations.run" title="fabric.operations.run"><tt class="xref py py-obj docutils literal"><span class="pre">run</span></tt></a>/<a class="reference internal" href="../api/core/operations.html#fabric.operations.sudo" title="fabric.operations.sudo"><tt class="xref py py-obj docutils literal"><span class="pre">sudo</span></tt></a> calls to behave as if
+one had specified <tt class="docutils literal"><span class="pre">pty=False</span></tt>.</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 1.0 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="cmdoption">
+<dt id="cmdoption-r">
+<tt class="descname">-r</tt><tt class="descclassname"></tt><tt class="descclassname">, </tt><tt class="descname">--reject-unknown-hosts</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption-r" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Sets <a class="reference internal" href="env.html#reject-unknown-hosts"><em>env.reject_unknown_hosts</em></a> to <tt class="docutils literal"><span class="pre">True</span></tt>,
+causing Fabric to abort when connecting to hosts not found in the user&#8217;s SSH
+<tt class="file docutils literal"><span class="pre">known_hosts</span></tt> file.</p>
+</dd></dl>
+
+<dl class="cmdoption">
+<dt id="cmdoption-R">
+<tt class="descname">-R</tt><tt class="descclassname"> ROLES</tt><tt class="descclassname">, </tt><tt class="descname">--roles</tt><tt class="descclassname">=ROLES</tt><a class="headerlink" href="#cmdoption-R" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="env.html#roles"><em>env.roles</em></a> をコンマで区切られた role名のリストにセット。</p>
+</dd></dl>
+
+<dl class="cmdoption">
+<dt id="cmdoption--set">
+<tt class="descname">--set</tt><tt class="descclassname"> KEY=VALUE,...</tt><a class="headerlink" href="#cmdoption--set" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Allows you to set default values for arbitrary Fabric env vars. Values set this way have a low precedence &#8211; they will not override more specific env vars which are also specified on the command line. 例えば:</p>
+<div class="highlight-python"><div class="highlight"><pre>fab --set password=foo --password=bar
+</pre></div>
+</div>
+<p>これは <tt class="docutils literal"><span class="pre">env.password</span> <span class="pre">=</span> <span class="pre">'bar'</span></tt> となります。</p>
+<p>複数の <tt class="docutils literal"><span class="pre">KEY=VALUE</span></tt> はカンマで区切ります。例えば <tt class="docutils literal"><span class="pre">fab</span> <span class="pre">--set</span> <span class="pre">var1=val1,var2=val2</span></tt> のように。</p>
+<p>Other than basic string values, you may also set env vars to True by omitting the <tt class="docutils literal"><span class="pre">=VALUE</span></tt> (例えば <tt class="docutils literal"><span class="pre">fab</span> <span class="pre">--set</span> <span class="pre">KEY</span></tt>), and you may set values to the empty string (and thus a False-equivalent value) by keeping the equals sign, but omitting <tt class="docutils literal"><span class="pre">VALUE</span></tt> (e.g. <tt class="docutils literal"><span class="pre">fab</span> <span class="pre">--set</span> <span class="pre">KEY=</span></tt>.)</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 1.4 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="cmdoption">
+<dt id="cmdoption-s">
+<tt class="descname">-s</tt><tt class="descclassname"> SHELL</tt><tt class="descclassname">, </tt><tt class="descname">--shell</tt><tt class="descclassname">=SHELL</tt><a class="headerlink" href="#cmdoption-s" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="env.html#shell"><em>env.shell</em></a> を指定した文字列にセット。リモートコマンドの実行に使用するデフォルト・シェルを変更します。</p>
+</dd></dl>
+
+<dl class="cmdoption">
+<dt id="cmdoption--shortlist">
+<tt class="descname">--shortlist</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption--shortlist" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="#cmdoption-l"><em class="xref std std-option">--list</em></a> に似ているがどんな修飾もなくインデンテーションやドキュメント文字列もない改行で区切られたタスク名。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 0.9.2 で追加.</span></p>
+</div>
+<div class="admonition seealso">
+<p class="first admonition-title">参考</p>
+<p class="last"><a class="reference internal" href="#cmdoption-l"><em class="xref std std-option">--list</em></a></p>
+</div>
+</dd></dl>
+
+<dl class="cmdoption">
+<dt id="cmdoption--show">
+<tt class="descname">--show</tt><tt class="descclassname">=LEVELS</tt><a class="headerlink" href="#cmdoption--show" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>A comma-separated list of <a class="reference internal" href="output_controls.html"><em>output levels</em></a> to
+be added to those that are shown by
+default.</p>
+<div class="admonition seealso">
+<p class="first admonition-title">参考</p>
+<p class="last"><a class="reference internal" href="../api/core/operations.html#fabric.operations.run" title="fabric.operations.run"><tt class="xref py py-obj docutils literal"><span class="pre">run</span></tt></a>, <a class="reference internal" href="../api/core/operations.html#fabric.operations.sudo" title="fabric.operations.sudo"><tt class="xref py py-obj docutils literal"><span class="pre">sudo</span></tt></a></p>
+</div>
+</dd></dl>
+
+<dl class="cmdoption">
+<dt id="cmdoption--ssh-config-path">
+<tt class="descname">--ssh-config-path</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption--ssh-config-path" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="env.html#ssh-config-path"><em>env.ssh_config_path</em></a> をセット。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 1.4 で追加.</span></p>
+</div>
+<div class="admonition seealso">
+<p class="first admonition-title">参考</p>
+<p class="last"><a class="reference internal" href="execution.html#ssh-config"><em>ネイティブのSSH configファイルの活用</em></a></p>
+</div>
+</dd></dl>
+
+<dl class="cmdoption">
+<dt id="cmdoption--skip-bad-hosts">
+<tt class="descname">--skip-bad-hosts</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption--skip-bad-hosts" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="env.html#skip-bad-hosts"><em>env.skip_bad_hosts</em></a> をセット。Fabric は利用できないホストをスキップします。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 1.4 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="cmdoption">
+<dt id="cmdoption--timeout">
+<tt class="descname">--timeout</tt><tt class="descclassname">=N</tt><tt class="descclassname">, </tt><tt class="descname">-t</tt><tt class="descclassname"> N</tt><a class="headerlink" href="#cmdoption--timeout" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>接続のタイムアウトを秒で指定します。 <a class="reference internal" href="env.html#timeout"><em>env.timeout</em></a> をセット。</p>
+<div class="admonition seealso">
+<p class="first admonition-title">参考</p>
+<p class="last"><a class="reference internal" href="env.html#timeout"><em>env.timeout</em></a>,
+<a class="reference internal" href="env.html#connection-attempts"><em>env.connection_attempts</em></a></p>
+</div>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 1.4 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="cmdoption">
+<dt id="cmdoption--command-timeout">
+<tt class="descname">--command-timeout</tt><tt class="descclassname">=N</tt><tt class="descclassname">, </tt><tt class="descname">-T</tt><tt class="descclassname"> N</tt><a class="headerlink" href="#cmdoption--command-timeout" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>リモートコマンドのタイムアウトを秒で指定します。<a class="reference internal" href="env.html#command-timeout"><em>env.command_timeout</em></a></p>
+<div class="admonition seealso">
+<p class="first admonition-title">参考</p>
+<p class="last"><a class="reference internal" href="env.html#command-timeout"><em>env.command_timeout</em></a>,</p>
+</div>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 1.6 で追加.</span></p>
+</div>
+</dd></dl>
+
+<dl class="cmdoption">
+<dt id="cmdoption-u">
+<tt class="descname">-u</tt><tt class="descclassname"> USER</tt><tt class="descclassname">, </tt><tt class="descname">--user</tt><tt class="descclassname">=USER</tt><a class="headerlink" href="#cmdoption-u" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="env.html#user"><em>env.user</em></a> を指定の文字列にセット。SSH 接続を行なうときにデフォルトのユーザー名として使われます。</p>
+</dd></dl>
+
+<dl class="cmdoption">
+<dt id="cmdoption-V">
+<tt class="descname">-V</tt><tt class="descclassname"></tt><tt class="descclassname">, </tt><tt class="descname">--version</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption-V" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Fabric のバージョンを表示して終了します。</p>
+</dd></dl>
+
+<dl class="cmdoption">
+<dt id="cmdoption-w">
+<tt class="descname">-w</tt><tt class="descclassname"></tt><tt class="descclassname">, </tt><tt class="descname">--warn-only</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption-w" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="env.html#warn-only"><em>env.warn_only</em></a> を <tt class="docutils literal"><span class="pre">True</span></tt> にセット。Fabric はコマンドがエラーを起こしても実行を続けます。</p>
+</dd></dl>
+
+<dl class="cmdoption">
+<dt id="cmdoption-z">
+<tt class="descname">-z</tt><tt class="descclassname"></tt><tt class="descclassname">, </tt><tt class="descname">--pool-size</tt><tt class="descclassname"></tt><a class="headerlink" href="#cmdoption-z" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p><a class="reference internal" href="env.html#pool-size"><em>env.pool_size</em></a> をセット。並行処理で同時に実行するプロセスの数を指定します。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 1.3 で追加.</span></p>
+</div>
+<div class="admonition seealso">
+<p class="first admonition-title">参考</p>
+<p class="last"><a class="reference internal" href="parallel.html"><em>Parallel execution</em></a></p>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="per-task-arguments">
+<span id="task-arguments"></span><h2>Per-task 引数<a class="headerlink" href="#per-task-arguments" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>The options given in <a class="reference internal" href="#command-line-options"><em>コマンドライン・オプション</em></a> apply to the invocation of
+<tt class="docutils literal"><span class="pre">fab</span></tt> as a whole; even if the order is mixed around, options still apply to
+all given tasks equally. Additionally, since tasks are just Python functions,
+it&#8217;s often desirable to pass in arguments to them at runtime.</p>
+<p>Answering both these needs is the concept of &#8220;per-task arguments&#8221;, which is a
+special syntax you can tack onto the end of any task name:</p>
+<ul class="simple">
+<li><p class="first">引数とタスク名を区別するにはコロン (<tt class="docutils literal"><span class="pre">:</span></tt>) を使います;</p>
+</li>
+<li><p class="first">コンマ (<tt class="docutils literal"><span class="pre">,</span></tt>) を引数を区別するために使います。(バックスラッシュでエスケープします。例えば <tt class="docutils literal"><span class="pre">\,</span></tt>);</p>
+</li>
+<li><p class="first">イコール (<tt class="docutils literal"><span class="pre">=</span></tt>) はキーワード引数、あるいは位置パラメーターの省略に使います。バックスラッシュでエスケープします。</p>
+</li>
+</ul>
+<p>Additionally, since this process involves string parsing, all values will end
+up as Python strings, so plan accordingly. (We hope to improve upon this in
+future versions of Fabric, provided an intuitive syntax can be found.)</p>
+<p>For example, a &#8220;create a new user&#8221; task might be defined like so (omitting most
+of the actual logic for brevity):</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">new_user</span><span class="p">(</span><span class="n">username</span><span class="p">,</span> <span class="n">admin</span><span class="o">=</span><span class="s">&#39;no&#39;</span><span class="p">,</span> <span class="n">comment</span><span class="o">=</span><span class="s">&quot;No comment provided&quot;</span><span class="p">):</span>
+    <span class="n">log_action</span><span class="p">(</span><span class="s">&quot;New User (</span><span class="si">%s</span><span class="s">): </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">username</span><span class="p">,</span> <span class="n">comment</span><span class="p">))</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<p>ユーザー名だけを指定できます:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ fab new_user:myusername
+</pre></div>
+</div>
+<p>あるいは任意のキーワード引数として扱います。</p>
+<div class="highlight-python"><div class="highlight"><pre>$ fab new_user:username=myusername
+</pre></div>
+</div>
+<p>もし両方が与えられたら、再び位置パラメーターとして:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ fab new_user:myusername,yes
+</pre></div>
+</div>
+<p>あるいは Python のように mix and matchで:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ fab new_user:myusername,admin=yes
+</pre></div>
+</div>
+<p>The <tt class="docutils literal"><span class="pre">log_action</span></tt> call above is useful for illustrating escaped commas, like
+so:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ fab new_user:myusername,admin=no,comment=&#39;Gary\, new developer (starts Monday)&#39;
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">ノート</p>
+<p class="last">Quoting the backslash-escaped comma is required, as not doing so will cause
+shell syntax errors. Quotes are also needed whenever an argument involves
+other shell-related characters such as spaces.</p>
+</div>
+<p>All of the above are translated into the expected Python function calls. For
+example, the last call above would become:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">new_user</span><span class="p">(</span><span class="s">&#39;myusername&#39;</span><span class="p">,</span> <span class="n">admin</span><span class="o">=</span><span class="s">&#39;yes&#39;</span><span class="p">,</span> <span class="n">comment</span><span class="o">=</span><span class="s">&#39;Gary, new developer (starts Monday)&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="section" id="roles-and-hosts">
+<h3>Roles と hosts<a class="headerlink" href="#roles-and-hosts" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p><a class="reference internal" href="execution.html#hosts-per-task-cli"><em>the section on task execution</em></a> で言及したようにいくつかの per-task キーワード引数があります。(<tt class="docutils literal"><span class="pre">host</span></tt>, <tt class="docutils literal"><span class="pre">hosts</span></tt>, <tt class="docutils literal"><span class="pre">role</span></tt> ,``roles``) これは実際にはタスク関数にマッピされませんが per-task host や roleリストの設定に使われます。</p>
+<p>これらの特殊な kwargs は args/kwargs から <strong>取り除かれて</strong> タスク関数に送られます。function itself; this is so that you don&#8217;t run into TypeErrors if your task doesn&#8217;t define the kwargs in question. (It also means that if you <strong>do</strong> define arguments with these names, you won&#8217;t be able to specify them in this manner &#8211; a regrettable but necessary sacrifice.)</p>
+<div class="admonition note">
+<p class="first admonition-title">ノート</p>
+<p class="last">kwargs に plural と singular の両方が与えられたら、plural の値が優先され singular は棄てられます。</p>
+</div>
+<p>これらの引数に plural を使うときセミコロン(<tt class="docutils literal"><span class="pre">;</span></tt>)を使います。コンマは引数で使います。さらにシェルがセミコロンを特殊文字として扱わないようにホストリストにはクォートを使うほうがよいでしょう。例えば:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ fab new_user:myusername,hosts=&quot;host1;host2&quot;
+</pre></div>
+</div>
+<p>Again, since the <tt class="docutils literal"><span class="pre">hosts</span></tt> kwarg is removed from the argument list sent to the
+<tt class="docutils literal"><span class="pre">new_user</span></tt> task function, the actual Python invocation would be
+<tt class="docutils literal"><span class="pre">new_user('myusername')</span></tt>, and the function would be executed on a host list
+of <tt class="docutils literal"><span class="pre">['host1',</span> <span class="pre">'host2']</span></tt>.</p>
+</div>
+</div>
+<div class="section" id="settings-files">
+<span id="fabricrc"></span><h2>設定ファイル<a class="headerlink" href="#settings-files" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>Fabric は現在シンプルなユーザー設定ファイル、<tt class="docutils literal"><span class="pre">fabricrc</span></tt> (<tt class="docutils literal"><span class="pre">fab</span></tt> のための <tt class="docutils literal"><span class="pre">bashrc</span></tt> のような)を使います。これには一つ以上の キー/値 のペアの行があります。書式は <tt class="docutils literal"><span class="pre">string.split('=')</span></tt> に従います。現在は特定の文字列の設定に使われます。このようなキー/値のペアは <tt class="docutils literal"><span class="pre">fab</span></tt> が実行されるときに <a class="reference internal" href="env.html"><em>env</em></a> の更新に使われます。これは fabfile が読み込まれる前にロードされます。</p>
+<p>デフォルトで Fabric は <tt class="docutils literal"><span class="pre">~/.fabricrc</span></tt> 探しますが、これは <tt class="docutils literal"><span class="pre">fab</span></tt> のオプション <a class="reference internal" href="#cmdoption-c"><em class="xref std std-option">-c</em></a> で変更できます。</p>
+<p>例えばワークステーションのユーザー名と SSH ログインのユーザー名が違うときにプロジェクトで使う fabfile の <tt class="docutils literal"><span class="pre">env.user</span></tt> を変更したくはないでしょう。(恐らく他の人も使うでしょうから) <tt class="docutils literal"><span class="pre">fabricrc</span></tt> ファイルをこの様にします:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">user</span> <span class="o">=</span> <span class="n">ssh_user_name</span>
+</pre></div>
+</div>
+<p>これで <tt class="docutils literal"><span class="pre">fab</span></tt> を実行するときに fabfile の <tt class="docutils literal"><span class="pre">env.user</span></tt> は <tt class="docutils literal"><span class="pre">'ssh_user_name'</span></tt> になります。他のユーザーの fabfile も同様にすると fabfile でデフォルトのユーザー名を気にしなくて済みます。</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+
+
+<h3>Project Versions</h3>
+<ul id="sidebar_versions">
+    
+    
+    <li><a href="/en/1.8.0/">1.8.0</a></li>
+    
+    
+    
+    <li><a href="/en/1.7.0/">1.7.0</a></li>
+    
+    
+    
+    <li><a href="/en/1.6.2/">1.6.2</a></li>
+    
+    
+    
+    <li><a href="/en/1.6.1/">1.6.1</a></li>
+    
+    
+    
+    <li><a href="/en/1.6.0/">1.6.0</a></li>
+    
+    
+    
+    <li><a href="/en/1.5.4/">1.5.4</a></li>
+    
+    
+    
+    <li><a href="/en/1.5.3/">1.5.3</a></li>
+    
+    
+    
+    <li><a href="/en/1.5.2/">1.5.2</a></li>
+    
+    
+    
+    <li><a href="/en/1.5.1/">1.5.1</a></li>
+    
+    
+    
+    <li><a href="/en/1.5.0/">1.5.0</a></li>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</ul>
+
+
+  <h3><a href="../index.html">目次</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><tt class="docutils literal"><span class="pre">fab</span></tt> オプションと引数</a><ul>
+<li><a class="reference internal" href="#basic-use">基本的な使い方</a></li>
+<li><a class="reference internal" href="#arbitrary-remote-shell-commands">任意のリモートシェル・コマンド</a></li>
+<li><a class="reference internal" href="#command-line-options">コマンドライン・オプション</a></li>
+<li><a class="reference internal" href="#per-task-arguments">Per-task 引数</a><ul>
+<li><a class="reference internal" href="#roles-and-hosts">Roles と hosts</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#settings-files">設定ファイル</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="execution.html"
+                        title="前の章へ">実行モデル</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="fabfiles.html"
+                        title="次の章へ">Fabfile construction and use</a></p>
+  <h3>このページ</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/usage/fab.txt"
+           rel="nofollow">ソースコードを表示</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>クイック検索</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="検索" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    モジュール、クラス、または関数名を入力してください
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="fabfiles.html" title="Fabfile construction and use"
+             >次へ</a> |</li>
+        <li class="right" >
+          <a href="execution.html" title="実行モデル"
+             >前へ</a> |</li>
+        <li><a href="../index.html">Fabric 1.8.1 ドキュメント</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Christian Vest Hansen and Jeffrey E. Forcier.
+      このドキュメントは <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.1 で生成しました。
+    </div>
+  </body>
+</html>

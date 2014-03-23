@@ -1,0 +1,798 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>実行モデル &mdash; Fabric 1.8.1 ドキュメント</title>
+    
+    <link rel="stylesheet" href="../_static/rtd.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.8.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/translations.js"></script>
+    <link rel="top" title="Fabric 1.8.1 ドキュメント" href="../index.html" />
+    <link rel="next" title="fab options and arguments" href="fab.html" />
+    <link rel="prev" title="The environment dictionary, env" href="env.html" />
+ 
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-18486793-1']);
+  _gaq.push(['_setDomainName', '.fabfile.org']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="fab.html" title="fab options and arguments"
+             accesskey="N">次へ</a> |</li>
+        <li class="right" >
+          <a href="env.html" title="The environment dictionary, env"
+             accesskey="P">前へ</a> |</li>
+        <li><a href="../index.html">Fabric 1.8.1 ドキュメント</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="execution-model">
+<h1>実行モデル<a class="headerlink" href="#execution-model" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<p><a class="reference internal" href="../tutorial.html"><em>概要とチュートリアル</em></a> をすでに読んでいるのなら、Fabricが基本的なケース(単一のホストに対する単一のタスク)でどのように動作するのかお分かりかと思います。しかし、多くの場合、複数のタスクおよび/または複数のホストに対する実行を望むことでしょう。大きなタスクを小さくて再利用可能なパーツに分けたり、一群のサーバで古いユーザを削除したりすることを望むかと思います。そのようなシナリオでは、いつ、どのようにタスクを実行するかの特定のルールが必要になってきます。</p>
+<p>このドキュメントではFabricの実行モデルを説明します。メインの実行ループ、ホストリストの定義方法、どのように接続が行われるかなどが含まれています。</p>
+<div class="section" id="execution-strategy">
+<span id="id1"></span><h2>実行ストラテジー<a class="headerlink" href="#execution-strategy" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>デフォルトでは、Fabricは単一でシリアルな実行メソッドです。ただし、Fabric 1.3からはパラレルモードも利用できるようになっています( <a class="reference internal" href="parallel.html"><em>Parallel execution</em></a> 参照)。このデフォルトの挙動は次のようになっています:</p>
+<ul class="simple">
+<li><p class="first">タスクの一覧が作成されます。この時点ではこのリストは単に <a class="reference internal" href="fab.html"><em>fab</em></a> に与えられた引数で、与えられた順番も保持します。</p>
+</li>
+<li><p class="first">さまざまなソースから、各タスクごとにタスク用のホストリストが生成されます(詳細は <a class="reference internal" href="#host-lists"><em>ホストリストがどのように作られるか</em></a> を参照)。</p>
+</li>
+<li><p class="first">タスクリストが順番に実行され、各タスクはホストリストの各ホストごとに一度づつ実行されます。</p>
+</li>
+<li><p class="first">ホストリストにホストのないタスクはローカルのみと判断され、常に一度のみしか実行されません。</p>
+</li>
+</ul>
+<p>したがって、次のfabfileが実行されると:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">fabric.api</span> <span class="kn">import</span> <span class="n">run</span><span class="p">,</span> <span class="n">env</span>
+
+<span class="n">env</span><span class="o">.</span><span class="n">hosts</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;host1&#39;</span><span class="p">,</span> <span class="s">&#39;host2&#39;</span><span class="p">]</span>
+
+<span class="k">def</span> <span class="nf">taskA</span><span class="p">():</span>
+    <span class="n">run</span><span class="p">(</span><span class="s">&#39;ls&#39;</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">taskB</span><span class="p">():</span>
+    <span class="n">run</span><span class="p">(</span><span class="s">&#39;whoami&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>次のように起動されます:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ fab taskA taskB
+</pre></div>
+</div>
+<p>そして、次のようにFabricが実行します:</p>
+<ul class="simple">
+<li><p class="first"><tt class="docutils literal"><span class="pre">taskA</span></tt> を <tt class="docutils literal"><span class="pre">host1</span></tt> に対して実行</p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">taskA</span></tt> を <tt class="docutils literal"><span class="pre">host2</span></tt> に対して実行</p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">taskB</span></tt> を <tt class="docutils literal"><span class="pre">host1</span></tt> に対して実行</p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">taskB</span></tt> を <tt class="docutils literal"><span class="pre">host2</span></tt> に対して実行</p>
+</li>
+</ul>
+<p>このアプローチはとても単純なものですが、タスク機能の分かりやすい構成を可能にし、(マルチホスト機能を個々の関数呼び出しに落としこむような他のツールとは地gって)出力を内省したり、与えられたコマンドのコードを返して、次に何をするか決定したりできるシェルスクリプトのようなロジックを可能にします。</p>
+</div>
+<div class="section" id="defining-tasks">
+<h2>タスクの定義<a class="headerlink" href="#defining-tasks" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>Fabricタスクの構成や構造化についての詳細はを <a class="reference internal" href="tasks.html"><em>Defining tasks</em></a> ご覧ください。</p>
+</div>
+<div class="section" id="defining-host-lists">
+<h2>ホストリストの定義<a class="headerlink" href="#defining-host-lists" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>Fabricを単一のビルドシステムとして使うのでなければ(可能ですが、主なユースケースではありません)、特定のリモートホストに対してタスクを実行できなければ、役立たずでしょう。Fabricでは、ホストを指定する方法がたくさんあります。グローバルからタスクごとまでのスコープで、また、必要に応じて組み合わせたり、マッチさせたりすることもできます。</p>
+<div class="section" id="hosts">
+<span id="host-strings"></span><h3>ホスト<a class="headerlink" href="#hosts" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>ここでは、ホストとは &#8220;ホスト文字列&#8221; で、ユーザー名、ホスト名、ポートを <tt class="docutils literal"><span class="pre">username&#64;hostname:port</span></tt> の形式で組み合わせたPythonの文字列のことを指します。ユーザーおよび/またはポート(と関連付けられた <tt class="docutils literal"><span class="pre">&#64;</span></tt> もしくは <tt class="docutils literal"><span class="pre">:</span></tt> )は省略可能で、その場合は実行ユーザーのローカルのユーザー名および/もしくはポート22がそれぞれ利用されます。したがって、<tt class="docutils literal"><span class="pre">admin&#64;foo.com:222</span></tt>、<tt class="docutils literal"><span class="pre">deploy&#64;website</span></tt>、<tt class="docutils literal"><span class="pre">nameserver1</span></tt> はいずれも有効なホスト文字列です。</p>
+<p>IPv6アドレスのノーテーション、例えば <tt class="docutils literal"><span class="pre">::1</span></tt>、 <tt class="docutils literal"><span class="pre">[::1]:1222</span></tt>, <tt class="docutils literal"><span class="pre">user&#64;2001:db8::1</span></tt>、 <tt class="docutils literal"><span class="pre">user&#64;[2001:db8::1]:1222</span></tt> もサポートしています。角括弧はアドレスとポート番号を別にするときだけ必要です。ポート番号を使用しないのなら、角括弧は任意です。また、コマンドラインの引数経由でホスト文字列を指定でき、その場合は、シェルに寄ってはカッコをエスケープする必要が出てくるかもしれません。</p>
+<div class="admonition note">
+<p class="first admonition-title">ノート</p>
+<p class="last">ユーザー/ホスト名は最後に見つかった <tt class="docutils literal"><span class="pre">&#64;</span></tt> で分割されます。したがって、メールアドレスでのユーザー名も有効で、正しくパースされます。</p>
+</div>
+<p>実行中、Fabricは与えられたホスト文字列を正規化し、各部分(ユーザー名/ホスト名/ポート)を環境辞書に保存し、必要なときにタスクが参照します。詳細は <a class="reference internal" href="env.html"><em>The environment dictionary, env</em></a> を参照してください。</p>
+</div>
+<div class="section" id="roles">
+<span id="execution-roles"></span><h3>ロール<a class="headerlink" href="#roles" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>ホスト文字列は単一のホストにマップされますが、ホストをグループで用意したほうが都合のいい場合もあるでしょう。例えば、ロードバランサーの後ろにたくさんのWebサーバがあって、それをすべてアップデートしたい場合や &#8220;クライアントのすべてのサーバ&#8221; にタスクを実行したい場合です。ロールは、ホスト文字列のリストに対応した文字列を定義できる手段を提供します。これにより、毎回ホストリスト全体を書き出す代わりに、この文字列を指定することができます。</p>
+<p>このマッピングは辞書 <tt class="docutils literal"><span class="pre">env.roledefs</span></tt> として定義され、利用するためにはfabfile内で指定する必要があります。例えば:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">fabric.api</span> <span class="kn">import</span> <span class="n">env</span>
+
+<span class="n">env</span><span class="o">.</span><span class="n">roledefs</span><span class="p">[</span><span class="s">&#39;webservers&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;www1&#39;</span><span class="p">,</span> <span class="s">&#39;www2&#39;</span><span class="p">,</span> <span class="s">&#39;www3&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">env.roledefs</span></tt> は当然ながらデフォルトでは空なので、どんな情報も失うおそれなく再割当てすることができます(もちろんこれを指定している他のfabfileを読み込まなければ):</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">fabric.api</span> <span class="kn">import</span> <span class="n">env</span>
+
+<span class="n">env</span><span class="o">.</span><span class="n">roledefs</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;web&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;www1&#39;</span><span class="p">,</span> <span class="s">&#39;www2&#39;</span><span class="p">,</span> <span class="s">&#39;www3&#39;</span><span class="p">],</span>
+    <span class="s">&#39;dns&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;ns1&#39;</span><span class="p">,</span> <span class="s">&#39;ns2&#39;</span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>リスト/反復可能なオブジェクトタイプに加えて、 <tt class="docutils literal"><span class="pre">env.roledefs</span></tt> の値は呼び出し可能で、</p>
+<p>ロールの使用は必須ではありません。サーバーの一般的なグループ化をするときに便利なようにしているだけです。</p>
+<div class="versionchanged">
+<p><span class="versionmodified">バージョン 0.9.2 で変更: </span><tt class="docutils literal"><span class="pre">roledefs</span></tt> の値として呼び出し可能な機能を追加。</p>
+</div>
+</div>
+<div class="section" id="how-host-lists-are-constructed">
+<span id="host-lists"></span><h3>ホストリストがどのように作られるか<a class="headerlink" href="#how-host-lists-are-constructed" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>ホストリストを指定する方法は全体であれ、タスクごとであれ、たくさんあります。またたいていの場合、これらの方法はマージするのではなくそれぞれの方法をオーバーライドできます(将来のリリースでは変更されるかもしれませんが)。これらの各方法は主に2つの部分、ホスト用とロール用に分けられます。</p>
+<div class="section" id="globally-via-env">
+<h4><tt class="docutils literal"><span class="pre">env</span></tt> 経由でグローバルに<a class="headerlink" href="#globally-via-env" title="このヘッドラインへのパーマリンク">¶</a></h4>
+<p>ホストもしくはロールを設定するいちばん一般的な方法は環境辞書 <a class="reference internal" href="env.html"><em>env</em></a>: <tt class="docutils literal"><span class="pre">hosts</span></tt> と <tt class="docutils literal"><span class="pre">roles</span></tt> に2つのキーバリューペアを設定する方法です。これらの変数の値は起動時、各タスクのホストリスト作成中にチェックされます。</p>
+<p>したがって、これらの値はモジュールレベルで設定され、fabfileのインポート時に有効になります:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">fabric.api</span> <span class="kn">import</span> <span class="n">env</span><span class="p">,</span> <span class="n">run</span>
+
+<span class="n">env</span><span class="o">.</span><span class="n">hosts</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;host1&#39;</span><span class="p">,</span> <span class="s">&#39;host2&#39;</span><span class="p">]</span>
+
+<span class="k">def</span> <span class="nf">mytask</span><span class="p">():</span>
+    <span class="n">run</span><span class="p">(</span><span class="s">&#39;ls /var/www&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>単に <tt class="docutils literal"><span class="pre">fab</span> <span class="pre">mytask</span></tt> として動作させるこのようなfabfileの場合、 <tt class="docutils literal"><span class="pre">mytask</span></tt> が <tt class="docutils literal"><span class="pre">host1</span></tt> に対して、続いて <tt class="docutils literal"><span class="pre">host2</span></tt> に対して実行されます。</p>
+<p>env変数は <strong>各タスク</strong> でチェックされるので、必要に応じてタスク内で <tt class="docutils literal"><span class="pre">env</span></tt> を変更することができ、その変更はその後に続くタスクにも反映されます。</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">fabric.api</span> <span class="kn">import</span> <span class="n">env</span><span class="p">,</span> <span class="n">run</span>
+
+<span class="k">def</span> <span class="nf">set_hosts</span><span class="p">():</span>
+    <span class="n">env</span><span class="o">.</span><span class="n">hosts</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;host1&#39;</span><span class="p">,</span> <span class="s">&#39;host2&#39;</span><span class="p">]</span>
+
+<span class="k">def</span> <span class="nf">mytask</span><span class="p">():</span>
+    <span class="n">run</span><span class="p">(</span><span class="s">&#39;ls /var/www&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">fab</span> <span class="pre">set_hosts</span> <span class="pre">mytask</span></tt> として実行すると、 <tt class="docutils literal"><span class="pre">set_hosts</span></tt> はホストリストがからのため &#8220;local&#8221; タスクとなりますが、 <tt class="docutils literal"><span class="pre">mytask</span></tt> は与えられた2つのホストに対して再び実行されます。</p>
+<div class="admonition note">
+<p class="first admonition-title">ノート</p>
+<p class="last">この手法は見せかけの &#8220;roles&#8221; の作成方法としてよく利用されていましたが、ロール機能が完全に実装されたので今は必要性が少なくなりました。とは言え、場合によっては今でも便利な方法です。</p>
+</div>
+<p><tt class="docutils literal"><span class="pre">env.hosts</span></tt> と同じように、 <tt class="docutils literal"><span class="pre">env.roles</span></tt> (<tt class="docutils literal"><span class="pre">env.roledefs</span></tt> と間違えにように!)が与えられると、<tt class="docutils literal"><span class="pre">env.roledefs</span></tt> 内を探すためにロール名のリストとして扱われます。</p>
+</div>
+<div class="section" id="globally-via-the-command-line">
+<h4>コマンドライン経由でグローバルに<a class="headerlink" href="#globally-via-the-command-line" title="このヘッドラインへのパーマリンク">¶</a></h4>
+<p>モジュールレベルでの <tt class="docutils literal"><span class="pre">env.hosts</span></tt>、<tt class="docutils literal"><span class="pre">env.roles</span></tt>、<tt class="docutils literal"><span class="pre">env.exclude_hosts</span></tt> の設定に加え、コンマで分けた文字列引数としてコマンドラインのスイッチ <a class="reference internal" href="fab.html#cmdoption-H"><em class="xref std std-option">--hosts/-H</em></a> と <a class="reference internal" href="fab.html#cmdoption-R"><em class="xref std std-option">--roles/-R</em></a> に渡すことでもこれらの設定が可能です。:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ fab -H host1,host2 mytask
+</pre></div>
+</div>
+<p>こうした実行は <tt class="docutils literal"><span class="pre">env.hosts</span> <span class="pre">=</span> <span class="pre">['host1',</span> <span class="pre">'host2']</span></tt> と同等で、引数パーサーはこれらの引数を探し、パース時に <tt class="docutils literal"><span class="pre">env</span></tt> を設定します。</p>
+<div class="admonition note">
+<p class="first admonition-title">ノート</p>
+<p class="last">これらのスイッチを単一のホストやロールを設定するためだけに利用するのは、可能ですし、たしかに一般的です。Fabricは、与えられた文字列に対して <tt class="docutils literal"><span class="pre">string.split(',')</span></tt> を単に呼び出しているだけで、コンマがない文字列は単一のアイテムリストとして扱われます。</p>
+</div>
+<p>これらのコマンドラインスイッチは、fabfileが <strong>読み込まれる前</strong> に解釈されるということは重要なので、これに留意してください。つまり、fabfile内の <tt class="docutils literal"><span class="pre">env.hosts</span></tt> もしくは <tt class="docutils literal"><span class="pre">env.roles</span></tt> で再割当てされた値がこれらのスイッチを上書きするのです。</p>
+<p>コマンドラインのホストとfabfileで指定されたホストの非破壊的なマージをしたい場合は、fabfileで <tt class="docutils literal"><span class="pre">env.hosts.extend()</span></tt> を使うようにしてください:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">fabric.api</span> <span class="kn">import</span> <span class="n">env</span><span class="p">,</span> <span class="n">run</span>
+
+<span class="n">env</span><span class="o">.</span><span class="n">hosts</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s">&#39;host3&#39;</span><span class="p">,</span> <span class="s">&#39;host4&#39;</span><span class="p">])</span>
+
+<span class="k">def</span> <span class="nf">mytask</span><span class="p">():</span>
+    <span class="n">run</span><span class="p">(</span><span class="s">&#39;ls /var/www&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>このfabfileを <tt class="docutils literal"><span class="pre">fab</span> <span class="pre">-H</span> <span class="pre">host1,host2</span> <span class="pre">mytask</span></tt> として起動すると、 <tt class="docutils literal"><span class="pre">mytask</span></tt> の実行時に <tt class="docutils literal"><span class="pre">['host1',</span> <span class="pre">'host2',</span> <span class="pre">'host3',</span> <span class="pre">'host4']</span></tt> が <tt class="docutils literal"><span class="pre">env.hosts</span></tt> に含まれます。</p>
+<div class="admonition note">
+<p class="first admonition-title">ノート</p>
+<p class="last"><tt class="docutils literal"><span class="pre">env.hosts</span></tt> は単なるPythonのリストオブジェクトなので <tt class="docutils literal"><span class="pre">env.hosts.append()</span></tt> やその他のメソッドも使うことができます。</p>
+</div>
+</div>
+<div class="section" id="per-task-via-the-command-line">
+<span id="hosts-per-task-cli"></span><h4>コマンドライン経由でタスクごとに<a class="headerlink" href="#per-task-via-the-command-line" title="このヘッドラインへのパーマリンク">¶</a></h4>
+<p>いつも同じホストリストに対してすべてのタスクを実行したいのなら、グローバルにホストリストを設定するといいでしょう。しかし常にそうとは限らないので、Fabricはより粒度の細かい方法をいくつか提供していて、単一のタスクのみに適用されるホストリストを指定することができます。最初の方法はタスク引数を利用する方法です。</p>
+<p><a class="reference internal" href="fab.html"><em>fab options and arguments</em></a> でも説明したように、特別なコマンドラインシンタックスによってタスクごとに引数を指定できます。タスク機能に実際に引数を設定できるのに加え、<tt class="docutils literal"><span class="pre">host</span></tt>、 <tt class="docutils literal"><span class="pre">hosts</span></tt>、 <tt class="docutils literal"><span class="pre">role</span></tt>、 <tt class="docutils literal"><span class="pre">roles</span></tt> &#8220;引数&#8221; をセットするのに使われます。これはホストリストの組み立て時にFabricによって解釈されます(そして、タスクに渡された引数から取り除かれます)。</p>
+<div class="admonition note">
+<p class="first admonition-title">ノート</p>
+<p class="last">コンマはすでにタスク引数の分割に使われているので、各ホスト文字列やロール名の設定にはそれぞれの <tt class="docutils literal"><span class="pre">hosts</span></tt> もしくは <tt class="docutils literal"><span class="pre">roles</span></tt> 引数でセミコロンを使う必要があります。さらに、シェルがセミコロンを解釈しないように引数はクォートされていなければなりません。</p>
+</div>
+<p>以下のfabfileを見てみると、これまで使っていたものと同じですが、ホストの情報はまったく設定されていません:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">fabric.api</span> <span class="kn">import</span> <span class="n">run</span>
+
+<span class="k">def</span> <span class="nf">mytask</span><span class="p">():</span>
+    <span class="n">run</span><span class="p">(</span><span class="s">&#39;ls /var/www&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">mytast</span></tt> 用のタスクごとのホストを指定するには、以下のように実行します:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ fab mytask:hosts=&quot;host1;host2&quot;
+</pre></div>
+</div>
+<p>これはどんなホストリストも上書きし、<tt class="docutils literal"><span class="pre">mytask</span></tt> は常にこの2つのホストに対して実行されます。</p>
+</div>
+<div class="section" id="per-task-via-decorators">
+<h4>デコレーター経由でタスクごとに<a class="headerlink" href="#per-task-via-decorators" title="このヘッドラインへのパーマリンク">¶</a></h4>
+<p>与えられたタスクが常に事前に定義されたホストリストに対して実行される場合は、fabfile内でのこのリストの指定を望むことでしょう。これは <a class="reference internal" href="../api/core/decorators.html#fabric.decorators.hosts" title="fabric.decorators.hosts"><tt class="xref py py-obj docutils literal"><span class="pre">hosts</span></tt></a> もしくは <a class="reference internal" href="../api/core/decorators.html#fabric.decorators.roles" title="fabric.decorators.roles"><tt class="xref py py-obj docutils literal"><span class="pre">roles</span></tt></a> デコレータでタスク関数をデコレートすることで可能です。これらのデコレータは変数引数リストをとります。例えば:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">fabric.api</span> <span class="kn">import</span> <span class="n">hosts</span><span class="p">,</span> <span class="n">run</span>
+
+<span class="nd">@hosts</span><span class="p">(</span><span class="s">&#39;host1&#39;</span><span class="p">,</span> <span class="s">&#39;host2&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">mytask</span><span class="p">():</span>
+    <span class="n">run</span><span class="p">(</span><span class="s">&#39;ls /var/www&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>これは、繰り返し可能な単一の引数を取ることもできます。例えば:</p>
+<div class="highlight-python"><div class="highlight"><pre>my_hosts = (&#39;host1&#39;, &#39;host2&#39;)
+@hosts(my_hosts)
+def mytask():
+    # ...
+</pre></div>
+</div>
+<p>これが利用されると、このデコレータはこの特定のタスクのホストリスト用の <tt class="docutils literal"><span class="pre">env</span></tt> のチェックをオーバーライドします(<tt class="docutils literal"><span class="pre">env</span></tt> が変更されるわけではありません。単に無視されます)。そして、たとえ上記fabfileで <tt class="docutils literal"><span class="pre">env.hosts</span></tt> が指定されていたり <a class="reference internal" href="fab.html"><em>fab</em></a> が <a class="reference internal" href="fab.html#cmdoption-H"><em class="xref std std-option">--hosts/-H</em></a> を使っていても <tt class="docutils literal"><span class="pre">mytask</span></tt> は <tt class="docutils literal"><span class="pre">['host1',</span> <span class="pre">'host2']</span></tt> のホストリストに対して実行されます。</p>
+<p>とは言え、デコレータのホストリストは、上のセクションで説明したタスクごとのコマンドラインを <strong>上書きすることはありません</strong>。</p>
+</div>
+<div class="section" id="order-of-precedence">
+<h4>優先順位<a class="headerlink" href="#order-of-precedence" title="このヘッドラインへのパーマリンク">¶</a></h4>
+<p>ここまで、ホストリスト設定のどの方法が他の方法よりも優先するかについて説明してきました。もっと明確にするため、以下に簡単にまとめます:</p>
+<ul class="simple">
+<li><p class="first">タスクごとのコマンドラインホストリスト(<tt class="docutils literal"><span class="pre">fab</span> <span class="pre">mytask:host=host1</span></tt>)は他のすべてを完全にオーバーライドする。</p>
+</li>
+<li><p class="first">タスクごとのデコレータで指定されたホストリスト(<tt class="docutils literal"><span class="pre">&#64;hosts('host1')</span></tt>)は <tt class="docutils literal"><span class="pre">env</span></tt> 変数をオーバーライドする。</p>
+</li>
+<li><p class="first">fabfileでグローバルに指定されたホストリスト(<tt class="docutils literal"><span class="pre">env.hosts</span> <span class="pre">=</span> <span class="pre">['host1']</span></tt>)はコマンドラインでのホストリストをオーバーライド <em>できる</em> が、それは自分が注意していない場合(もしくは意図的に行った場合)のみ。</p>
+</li>
+<li><p class="first">コマンドラインでグローバルに設定されたホストリストは(<tt class="docutils literal"><span class="pre">--hosts=host1</span></tt>) <tt class="docutils literal"><span class="pre">env</span></tt> 変数を初期化するが、それだけしかしない。</p>
+</li>
+</ul>
+<p>この優先順位はより一貫性を持たせるために将来的には少し変更されるかもしれません(例えば、コマンドラインのタスクごとのリストがコード内のリストに優先されるのと同じように <a class="reference internal" href="fab.html#cmdoption-H"><em class="xref std std-option">--hosts</em></a> が <tt class="docutils literal"><span class="pre">env.hosts</span></tt> より優先される)が、それは後方互換性リリースの時だけです。</p>
+</div>
+</div>
+<div class="section" id="combining-host-lists">
+<span id="id2"></span><h3>ホストリストの結合<a class="headerlink" href="#combining-host-lists" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p><a class="reference internal" href="#host-lists"><em>ホストリストがどのように作られるか</em></a> で言及している様々なソース間のホストを &#8220;結合&#8221; する方法はありません。もし <tt class="docutils literal"><span class="pre">env.hosts</span></tt> が <tt class="docutils literal"><span class="pre">['host1',</span> <span class="pre">'host2',</span> <span class="pre">'host3']</span></tt> に設定されていて、関数ごと(例えば <a class="reference internal" href="../api/core/decorators.html#fabric.decorators.hosts" title="fabric.decorators.hosts"><tt class="xref py py-obj docutils literal"><span class="pre">hosts</span></tt></a> 経由)のホストリストが <tt class="docutils literal"><span class="pre">['host2',</span> <span class="pre">'host3']</span></tt> と設定されている場合、この関数は <tt class="docutils literal"><span class="pre">host1</span></tt> に対しては <strong>実行されません</strong> 。タスクごとのデコレータホストリストがの方が優先されるからです。</p>
+<p>とは言え、与えられた各ソースでは、もしロールとホストの <strong>両方</strong> が設定された場合、両方ともひとつのホストリストにマージされます。例えば、以下のように両方のデコレータが使われているfabfileを見てみましょう:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">fabric.api</span> <span class="kn">import</span> <span class="n">env</span><span class="p">,</span> <span class="n">hosts</span><span class="p">,</span> <span class="n">roles</span><span class="p">,</span> <span class="n">run</span>
+
+<span class="n">env</span><span class="o">.</span><span class="n">roledefs</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;role1&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;b&#39;</span><span class="p">,</span> <span class="s">&#39;c&#39;</span><span class="p">]}</span>
+
+<span class="nd">@hosts</span><span class="p">(</span><span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="s">&#39;b&#39;</span><span class="p">)</span>
+<span class="nd">@roles</span><span class="p">(</span><span class="s">&#39;role1&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">mytask</span><span class="p">():</span>
+    <span class="n">run</span><span class="p">(</span><span class="s">&#39;ls /var/www&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">mytask</span></tt> 実行時にはコマンドラインのホストやロールが与えられていないとすると、このfabfileは <tt class="docutils literal"><span class="pre">role1</span></tt> と <a class="reference internal" href="../api/core/decorators.html#fabric.decorators.hosts" title="fabric.decorators.hosts"><tt class="xref py py-obj docutils literal"><span class="pre">hosts</span></tt></a> 呼び出しの中身の結合されたホストリスト <tt class="docutils literal"><span class="pre">['a',</span> <span class="pre">'b',</span> <span class="pre">'c']</span></tt> に対して <tt class="docutils literal"><span class="pre">mytask</span></tt> を実行します。</p>
+</div>
+<div class="section" id="host-list-deduplication">
+<span id="deduplication"></span><h3>ホストリストの重複<a class="headerlink" href="#host-list-deduplication" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>デフォルトでは、 <a class="reference internal" href="#combining-host-lists"><em>ホストリストの結合</em></a> をサポートするためFabricは最終的なホストリストから重複を取り除くので、与えられるどのホスト文字列も一度だけしか対象になりません。とは言え、これでは有益なこともある同じターゲットホストに対して明示的/意図的な複数回タスクの実行ができません。</p>
+<p>重複除去の機能を無効にするには <a class="reference internal" href="env.html#dedupe-hosts"><em>env.dedupe_hosts</em></a> を <tt class="docutils literal"><span class="pre">False</span></tt> にします。</p>
+</div>
+<div class="section" id="excluding-specific-hosts">
+<span id="excluding-hosts"></span><h3>特定のホストの除外<a class="headerlink" href="#excluding-specific-hosts" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>時には、ひとつもしくは複数の特定のホストを除外すると便利な時もあります。例えば、あるロールや自動的に生成されたホストリストから引き出されるいくつかの必要のないホストをオーバーライドする場合などです。</p>
+<div class="admonition note">
+<p class="first admonition-title">ノート</p>
+<p class="last">Fabric 1.4 からは接続できなかったホストをスキップする <a class="reference internal" href="env.html#skip-bad-hosts"><em>skip_bad_hosts</em></a> を使うこともできます。</p>
+</div>
+<p>グローバルでは <a class="reference internal" href="fab.html#cmdoption-x"><em class="xref std std-option">--exclude-hosts/-x</em></a> でホストの除外ができます:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ fab -R myrole -x host2,host5 mytask
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">myrole</span></tt> が <tt class="docutils literal"><span class="pre">['host1',</span> <span class="pre">'host2',</span> <span class="pre">...,</span> <span class="pre">'host15']</span></tt> として定義されている場合、上のように実行すると、有効なホストリスト <tt class="docutils literal"><span class="pre">['host1',</span> <span class="pre">'host3',</span> <span class="pre">'host4',</span> <span class="pre">'host6',</span> <span class="pre">...,</span> <span class="pre">'host15']</span></tt> となります。</p>
+<blockquote>
+<div><div class="admonition note">
+<p class="first admonition-title">ノート</p>
+<p class="last">このオプションを利用しても <tt class="docutils literal"><span class="pre">env.hosts</span></tt> は修正されません。メインの実行ループがリクエストされたホストをスキップするだけです。</p>
+</div>
+</div></blockquote>
+<p>除外は、付加的な <tt class="docutils literal"><span class="pre">exclude_hosts</span></tt> 引数を利用することでタスクごとに指定することもできます。これは、上記で言及したタスクごとの <tt class="docutils literal"><span class="pre">hosts</span></tt> と <tt class="docutils literal"><span class="pre">roles</span></tt> 引数と同じように実装されていて、実際のタスク実行にストリップされます。以下の例では、上記のグローバル除外と同じ結果になります:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ fab mytask:roles=myrole,exclude_hosts=&quot;host2;host5&quot;
+</pre></div>
+</div>
+<p>ホストリストはタスクごと引数の <tt class="docutils literal"><span class="pre">hosts</span></tt> と同じようにセミコロンで分けられます。</p>
+<div class="section" id="combining-exclusions">
+<h4>除外の結合<a class="headerlink" href="#combining-exclusions" title="このヘッドラインへのパーマリンク">¶</a></h4>
+<p>ホスト除外リストは、ホストリスト自身と同じように、宣言されている &#8220;levels&#8221; が違うリスト間ではマージされません。例えば、グローバルな <tt class="docutils literal"><span class="pre">-x</span></tt> オプションは、デコレータやキーワード引数でセットされたタスクごとのホストリストに影響しません。また、タスクごとの <tt class="docutils literal"><span class="pre">exclude_hosts</span></tt> キーワード引数もグローバルな <tt class="docutils literal"><span class="pre">-H</span></tt> リストに影響しません。</p>
+<p>このルールにはひとつだけ小さな例外があります。<tt class="docutils literal"><span class="pre">&#64;hosts</span></tt> もしくは <tt class="docutils literal"><span class="pre">&#64;roles</span></tt> 経由でのホストリストの分析時に、CLIレベルのキーワード引数(<tt class="docutils literal"><span class="pre">mytask:exclude_hosts=x,y</span></tt>)が取り入れられます。したがって、 <tt class="docutils literal"><span class="pre">&#64;hosts('host1',</span> <span class="pre">'host2')</span></tt> でデコレートされているタスク関数が <tt class="docutils literal"><span class="pre">fab</span> <span class="pre">taskname:exclude_hosts=host2</span></tt> として実行されると、 <tt class="docutils literal"><span class="pre">host1</span></tt> だけに対してのみ実行されます。</p>
+<p>ホストリストのマージに関しては、現行では機能は限定的(実装をシンプルに保つためでもあります)で、将来のリリースでは拡張されるかもしれません。</p>
+</div>
+</div>
+</div>
+<div class="section" id="intelligently-executing-tasks-with-execute">
+<span id="execute"></span><h2><tt class="docutils literal"><span class="pre">execute</span></tt> での賢いタスクの実行<a class="headerlink" href="#intelligently-executing-tasks-with-execute" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 1.3 で追加.</span></p>
+</div>
+<p>ここの情報のほとんどは、最初の例で <tt class="docutils literal"><span class="pre">fab</span> <span class="pre">taskA</span> <span class="pre">taskB</span></tt> を呼び出したように、 <a class="reference internal" href="fab.html"><em>fab</em></a> 経由で実行される &#8220;トップレベル&#8221; のタスクに作用します。とは言え、以下の &#8220;meta&#8221; タスクのような複数タスクの実行をまとめたものも便利な時があります。</p>
+<p>Fabric 1.3以前は <a class="reference internal" href="library.html"><em>Library Use</em></a> で書かれていたように手動で行う必要がありました。Fabricのデザインは魔法的な挙動を避けているので、単純にタスクを <em>呼び出しても</em> <a class="reference internal" href="../api/core/decorators.html#fabric.decorators.roles" title="fabric.decorators.roles"><tt class="xref py py-obj docutils literal"><span class="pre">roles</span></tt></a> のようなデコレータは考慮 <strong>しません</strong> 。</p>
+<p>Fabric 1.3では新しく <a class="reference internal" href="../api/core/tasks.html#fabric.tasks.execute" title="fabric.tasks.execute"><tt class="xref py py-obj docutils literal"><span class="pre">execute</span></tt></a> ヘルパー関数が追加されました。これは最初の引数としてタスクオブジェクトもしくはタスク名を取ります。コマンドラインから与えられたタスクを呼び出すのと同じくらい効率的に利用できます。上の <a class="reference internal" href="#host-lists"><em>ホストリストがどのように作られるか</em></a> で与えられたすべてのルールが適用されます。( <a class="reference internal" href="../api/core/tasks.html#fabric.tasks.execute" title="fabric.tasks.execute"><tt class="xref py py-obj docutils literal"><span class="pre">execute</span></tt></a> への <tt class="docutils literal"><span class="pre">hosts</span></tt> と <tt class="docutils literal"><span class="pre">roles</span></tt> キーワード引数は、他のすべてのホスト/ロール設定方法をオーバーライドする <a class="reference internal" href="#hosts-per-task-cli"><em>CLIのタスクごとの引数</em></a> に類似しています)</p>
+<p>例として、ウェブアプリケーションをデプロイする2つの別個に定義されたfabfileをあげます。</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">fabric.api</span> <span class="kn">import</span> <span class="n">run</span><span class="p">,</span> <span class="n">roles</span>
+
+<span class="n">env</span><span class="o">.</span><span class="n">roledefs</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;db&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;db1&#39;</span><span class="p">,</span> <span class="s">&#39;db2&#39;</span><span class="p">],</span>
+    <span class="s">&#39;web&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;web1&#39;</span><span class="p">,</span> <span class="s">&#39;web2&#39;</span><span class="p">,</span> <span class="s">&#39;web3&#39;</span><span class="p">],</span>
+<span class="p">}</span>
+
+<span class="nd">@roles</span><span class="p">(</span><span class="s">&#39;db&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">migrate</span><span class="p">():</span>
+    <span class="c"># Database stuff here.</span>
+    <span class="k">pass</span>
+
+<span class="nd">@roles</span><span class="p">(</span><span class="s">&#39;web&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">update</span><span class="p">():</span>
+    <span class="c"># Code updates here.</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<p>Fabric &lt;=1.2では、<tt class="docutils literal"><span class="pre">migrate</span></tt> をDBサーバに対して確実に実行し、<tt class="docutils literal"><span class="pre">update</span></tt> をWebサーバに対して確実に実行する唯一の方法( <tt class="docutils literal"><span class="pre">env.host_string</span></tt> 操作の短いマニュアル)は両方をトップレベルのタスクとして呼び出す方法しかありませんでした:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ fab migrate update
+</pre></div>
+</div>
+<p>Fabric &gt;=1.3ではメタタスクのセットアップに <a class="reference internal" href="../api/core/tasks.html#fabric.tasks.execute" title="fabric.tasks.execute"><tt class="xref py py-obj docutils literal"><span class="pre">execute</span></tt></a> が使えます。 <tt class="docutils literal"><span class="pre">import</span></tt> の行を以下のようにします:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">fabric.api</span> <span class="kn">import</span> <span class="n">run</span><span class="p">,</span> <span class="n">roles</span><span class="p">,</span> <span class="n">execute</span>
+</pre></div>
+</div>
+<p>そして、ファイルの最後に次を追加します:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">deploy</span><span class="p">():</span>
+    <span class="n">execute</span><span class="p">(</span><span class="n">migrate</span><span class="p">)</span>
+    <span class="n">execute</span><span class="p">(</span><span class="n">update</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>これだけです; <a class="reference internal" href="../api/core/decorators.html#fabric.decorators.roles" title="fabric.decorators.roles"><tt class="xref py py-obj docutils literal"><span class="pre">roles</span></tt></a> デコレータが期待通りに履行し、以下の実行シーケンスの結果になります:</p>
+<ul class="simple">
+<li><p class="first"><tt class="xref py py-obj docutils literal"><span class="pre">db1</span></tt> に対して <tt class="xref py py-obj docutils literal"><span class="pre">migrate</span></tt></p>
+</li>
+<li><p class="first"><tt class="xref py py-obj docutils literal"><span class="pre">db2</span></tt> に対して <tt class="xref py py-obj docutils literal"><span class="pre">migrate</span></tt></p>
+</li>
+<li><p class="first"><tt class="xref py py-obj docutils literal"><span class="pre">web1</span></tt> に対して <tt class="xref py py-obj docutils literal"><span class="pre">update</span></tt></p>
+</li>
+<li><p class="first"><tt class="xref py py-obj docutils literal"><span class="pre">web2</span></tt> に対して <tt class="xref py py-obj docutils literal"><span class="pre">update</span></tt></p>
+</li>
+<li><p class="first"><tt class="xref py py-obj docutils literal"><span class="pre">web3</span></tt> に対して <tt class="xref py py-obj docutils literal"><span class="pre">update</span></tt></p>
+</li>
+</ul>
+<div class="admonition warning">
+<p class="first admonition-title">警告</p>
+<p>このテクニックは、ホストリストを自分では持たないタスク(これにはグローバルなホストリスト設定も含まれます)は一度しか実行されないので動作します。もし、複数ホストに対して実行される &#8220;通常の&#8221; タスク内で利用された場合、<a class="reference internal" href="../api/core/tasks.html#fabric.tasks.execute" title="fabric.tasks.execute"><tt class="xref py py-obj docutils literal"><span class="pre">execute</span></tt></a> への呼び出しは複数回実行され、結果としてサブタスク呼び出しの倍数分実行されるので、お気をつけて!</p>
+<p class="last">自分の <tt class="xref py py-obj docutils literal"><span class="pre">execute</span></tt> 呼び出しを1度だけの呼び出しにするには <a class="reference internal" href="../api/core/decorators.html#fabric.decorators.runs_once" title="fabric.decorators.runs_once"><tt class="xref py py-obj docutils literal"><span class="pre">runs_once</span></tt></a> デコレータを使います。</p>
+</div>
+<div class="admonition seealso">
+<p class="first admonition-title">参考</p>
+<p class="last"><a class="reference internal" href="../api/core/tasks.html#fabric.tasks.execute" title="fabric.tasks.execute"><tt class="xref py py-obj docutils literal"><span class="pre">execute</span></tt></a>, <a class="reference internal" href="../api/core/decorators.html#fabric.decorators.runs_once" title="fabric.decorators.runs_once"><tt class="xref py py-obj docutils literal"><span class="pre">runs_once</span></tt></a></p>
+</div>
+<div class="section" id="leveraging-execute-to-access-multi-host-results">
+<span id="leveraging-execute-return-value"></span><h3>マルチホストの結果へのアクセスに <tt class="docutils literal"><span class="pre">execute</span></tt> を活用する<a class="headerlink" href="#leveraging-execute-to-access-multi-host-results" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>Fabricの実行がひと仕事ある場合、特に並列にある場合、最後にたくさんあるホストごとの結果の値を、例えばテーブルサマリーの表示や計算の実行をするためなど、ひとまとめにしたいことがあると思います。</p>
+<p>Fabricのデフォルトの &#8220;ナイーブ&#8221; モード(あなたが頼りにしている、ホストリストに対するあなたのために行うFabricの繰り返し処理のモードです)ではこれはできませんが、 <a class="reference internal" href="../api/core/tasks.html#fabric.tasks.execute" title="fabric.tasks.execute"><tt class="xref py py-obj docutils literal"><span class="pre">execute</span></tt></a> を使うととても簡単です。単純に実際の分割したタスクの呼び出しから <a class="reference internal" href="../api/core/tasks.html#fabric.tasks.execute" title="fabric.tasks.execute"><tt class="xref py py-obj docutils literal"><span class="pre">execute</span></tt></a> との実行をコントロールする &#8220;meta&#8221; タスクの呼び出しにスイッチします。</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">fabric.api</span> <span class="kn">import</span> <span class="n">task</span><span class="p">,</span> <span class="n">execute</span><span class="p">,</span> <span class="n">run</span><span class="p">,</span> <span class="n">runs_once</span>
+
+<span class="nd">@task</span>
+<span class="k">def</span> <span class="nf">workhorse</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">run</span><span class="p">(</span><span class="s">&quot;get my infos&quot;</span><span class="p">)</span>
+
+<span class="nd">@task</span>
+<span class="nd">@runs_once</span>
+<span class="k">def</span> <span class="nf">go</span><span class="p">():</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">execute</span><span class="p">(</span><span class="n">workhorse</span><span class="p">)</span>
+    <span class="k">print</span> <span class="n">results</span>
+</pre></div>
+</div>
+<p>上の例では、 <tt class="docutils literal"><span class="pre">workhorse</span></tt> はFabricで可能なこと、文字通り古い &#8220;naive&#8221; なタスクはすべて可能です。なにか有益なことを返す必要がある時を除いてですが。</p>
+<p><tt class="docutils literal"><span class="pre">go</span></tt> は新しいエントリーポイント( <tt class="docutils literal"><span class="pre">fab</span> <span class="pre">go</span></tt> などとして実行されます)で、その仕事は <a class="reference internal" href="../api/core/tasks.html#fabric.tasks.execute" title="fabric.tasks.execute"><tt class="xref py py-obj docutils literal"><span class="pre">execute</span></tt></a> 呼び出しから <tt class="docutils literal"><span class="pre">results</span></tt> 辞書を取り出し、それに対して必要なことをなんでもすることです。返り値の構造についての詳細はAPIドキュメントをご覧ください。</p>
+</div>
+<div class="section" id="using-execute-with-dynamically-set-host-lists">
+<span id="dynamic-hosts"></span><h3>ホストリストの動的セットとの <tt class="docutils literal"><span class="pre">execute</span></tt> の利用<a class="headerlink" href="#using-execute-with-dynamically-set-host-lists" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>実行時にターゲットホストリストの参照を並行で行うのはFabricの中級から上級のよくあるユースケースです( <a class="reference internal" href="#execution-roles"><em>ロール</em></a> の利用では十分ではない場合)。 <tt class="docutils literal"><span class="pre">execute</span></tt> は以下のようにこれをとても簡単に実現できます:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">fabric.api</span> <span class="kn">import</span> <span class="n">run</span><span class="p">,</span> <span class="n">execute</span><span class="p">,</span> <span class="n">task</span>
+
+<span class="c"># For example, code talking to an HTTP API, or a database, or ...</span>
+<span class="kn">from</span> <span class="nn">mylib</span> <span class="kn">import</span> <span class="n">external_datastore</span>
+
+<span class="c"># This is the actual algorithm involved. It does not care about host</span>
+<span class="c"># lists at all.</span>
+<span class="k">def</span> <span class="nf">do_work</span><span class="p">():</span>
+    <span class="n">run</span><span class="p">(</span><span class="s">&quot;something interesting on a host&quot;</span><span class="p">)</span>
+
+<span class="c"># This is the user-facing task invoked on the command line.</span>
+<span class="nd">@task</span>
+<span class="k">def</span> <span class="nf">deploy</span><span class="p">(</span><span class="n">lookup_param</span><span class="p">):</span>
+    <span class="c"># This is the magic you don&#39;t get with @hosts or @roles.</span>
+    <span class="c"># Even lazy-loading roles require you to declare available roles</span>
+    <span class="c"># beforehand. Here, the sky is the limit.</span>
+    <span class="n">host_list</span> <span class="o">=</span> <span class="n">external_datastore</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">lookup_param</span><span class="p">)</span>
+    <span class="c"># Put this dynamically generated host list together with the work to be</span>
+    <span class="c"># done.</span>
+    <span class="n">execute</span><span class="p">(</span><span class="n">do_work</span><span class="p">,</span> <span class="n">hosts</span><span class="o">=</span><span class="n">host_list</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>例えば、 <tt class="docutils literal"><span class="pre">external_datastore</span></tt> が単純な &#8220;データベース内をタグでホストをルックアップ&#8221; するサービスなら、そして自分のアプリケーション スタックに関連するタグが付けられたすべてのホストに対してタスクを実行するのなら、上記を以下のように呼び出すことができます:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ fab deploy:app
+</pre></div>
+</div>
+<p>ちょっと待って! DBサーバ上のデータのマイグレーションがどっかに行ってしまいました。ソースリポジトリのマイグレーション用のコードを修正して、DBボックスだけに再度どプロイしてみましょう:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ fab deploy:db
+</pre></div>
+</div>
+<p>このユースケースはロールに似ていますが、もっと潜在力があり、決してひとつの引数だけに限定されるものでもありません。どのようにもタスクを定義でき、必要に応じてどのようにも外部のデータストアにクエリーを行うことができます。結局のところ、ただのPythonなのです。</p>
+<div class="section" id="the-alternate-approach">
+<h4>別のアプローチ<a class="headerlink" href="#the-alternate-approach" title="このヘッドラインへのパーマリンク">¶</a></h4>
+<p>上記と似ているけれども、<tt class="docutils literal"><span class="pre">execute</span></tt> 呼び出しを明示する代わりに <tt class="docutils literal"><span class="pre">fab</span></tt> の機能を利用して連続で複数タスクを呼び出すには、ホストリストの参照タスクでの <a class="reference internal" href="env.html#hosts"><em>env.hosts</em></a> を変化させ、同じセッションで <tt class="docutils literal"><span class="pre">do_work</span></tt> を呼び出します:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">fabric.api</span> <span class="kn">import</span> <span class="n">run</span><span class="p">,</span> <span class="n">task</span>
+
+<span class="kn">from</span> <span class="nn">mylib</span> <span class="kn">import</span> <span class="n">external_datastore</span>
+
+<span class="c"># Marked as a publicly visible task, but otherwise unchanged: still just</span>
+<span class="c"># &quot;do the work, let somebody else worry about what hosts to run on&quot;.</span>
+<span class="nd">@task</span>
+<span class="k">def</span> <span class="nf">do_work</span><span class="p">():</span>
+    <span class="n">run</span><span class="p">(</span><span class="s">&quot;something interesting on a host&quot;</span><span class="p">)</span>
+
+<span class="nd">@task</span>
+<span class="k">def</span> <span class="nf">set_hosts</span><span class="p">(</span><span class="n">lookup_param</span><span class="p">):</span>
+    <span class="c"># Update env.hosts instead of calling execute()</span>
+    <span class="n">env</span><span class="o">.</span><span class="n">hosts</span> <span class="o">=</span> <span class="n">external_datastore</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">lookup_param</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>そして次のように実行されます:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ fab set_hosts:app do_work
+</pre></div>
+</div>
+<p>その前のアプローチと比べた時のこちらのアプローチの利点は <tt class="docutils literal"><span class="pre">do_work</span></tt> をどんな &#8220;workhorse&#8221; タスクとも入れ替え可能ということです:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ fab set_hosts:db snapshot
+$ fab set_hosts:cassandra,cluster2 repair_ring
+$ fab set_hosts:redis,environ=prod status
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="failure-handling">
+<span id="failures"></span><h2>失敗の扱い<a class="headerlink" href="#failure-handling" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>タスクリストが構築されると、Fabricは <a class="reference internal" href="#execution-strategy"><em>実行ストラテジー</em></a> で説明したようにこのタスクの実行を開始し、そのホストリスト全体にすべてのタスクが実行されます。とは言え、Fabricはデフォルトでは &#8220;fail-fast&#8221; の挙動パターンになっていて、もし何かが失敗した場合、例えばリモートプログラムがノンゼロ返り値を返したり、自分のfabfileのPythonコードが例外に遭遇したりした場合、すぐに停止します。</p>
+<p>これは通常は望ましい挙動ですが、このルールにはたくさんの例外があり、そのため、Fabricはブール設定の <tt class="docutils literal"><span class="pre">env.warn_only</span></tt> を提供しています。これはデフォルトでは <tt class="docutils literal"><span class="pre">False</span></tt> になっていて、エラー状態はただちにそのプログラムの停止を意味します。しかし、もし失敗時に &#8211;  <a class="reference internal" href="../api/core/context_managers.html#fabric.context_managers.settings" title="fabric.context_managers.settings"><tt class="xref py py-obj docutils literal"><span class="pre">settings</span></tt></a> コンテキストマネージャーなどで &#8211; <tt class="docutils literal"><span class="pre">env.warn_only</span></tt> が <tt class="docutils literal"><span class="pre">True</span></tt> に設定されていると、Fabricは警告メッセージを発しますがプログラムの実行は継続します。</p>
+</div>
+<div class="section" id="connections">
+<span id="id3"></span><h2>接続<a class="headerlink" href="#connections" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>実は <tt class="docutils literal"><span class="pre">fab</span></tt> 自身ではリモートホストへの接続は行っていません。その代わり、それぞれのホストごとに対して一つのタスクをそれぞれ個別に実行するようにすることと、env変数 <tt class="docutils literal"><span class="pre">env.host_string</span></tt> に正しい値がセットされていることを単純に保証しています。Fabricをライブラリとして活用したいユーザーは、手動で行うことにより同じような動作を達成することができます(とは言え、Fabric 1.3では <a class="reference internal" href="../api/core/tasks.html#fabric.tasks.execute" title="fabric.tasks.execute"><tt class="xref py py-obj docutils literal"><span class="pre">execute</span></tt></a> の利用をのほうが好ましく、より強力です)。</p>
+<p><tt class="docutils literal"><span class="pre">env.host_string</span></tt> は、(その名称がほのめかしているように) &#8220;カレントの&#8221; ホスト文字列で、ネットワークを利用する関数が実行されるときに、どの接続を行うか(もしくは再利用するか)をFabricが決定するために利用されます。 <a class="reference internal" href="../api/core/operations.html#fabric.operations.run" title="fabric.operations.run"><tt class="xref py py-obj docutils literal"><span class="pre">run</span></tt></a> や <a class="reference internal" href="../api/core/operations.html#fabric.operations.put" title="fabric.operations.put"><tt class="xref py py-obj docutils literal"><span class="pre">put</span></tt></a> のようなオペレーションは、ホスト文字列をSSH接続オブジェクトにマップしている共有辞書内の参照キーとして <tt class="docutils literal"><span class="pre">env.host_string</span></tt> を利用します。</p>
+<div class="admonition note">
+<p class="first admonition-title">ノート</p>
+<p class="last">この接続用の辞書(今のところ <tt class="docutils literal"><span class="pre">fabric.state.connections</span></tt> にあります)はキャッシュとして振る舞い、オーバーヘッドを減らすために可能なら前回作成された接続を返そうとし、そうした接続がなければ新たに作成します。</p>
+</div>
+<div class="section" id="lazy-connections">
+<h3>レイジーな接続<a class="headerlink" href="#lazy-connections" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>接続は各オペレーションによって駆動されるので、Fabricは実際に必要になるまで接続を行いません。以下の例を見てください。このタスクはリモートサーバとのやりとりの前にローカルでハウスキーピング処理を行います:</p>
+<div class="highlight-python"><div class="highlight"><pre>from fabric.api import *
+
+@hosts(&#39;host1&#39;)
+def clean_and_upload():
+    local(&#39;find assets/ -name &quot;*.DS_Store&quot; -exec rm &#39;{}&#39; \;&#39;)
+    local(&#39;tar czf /tmp/assets.tgz assets/&#39;)
+    put(&#39;/tmp/assets.tgz&#39;, &#39;/tmp/assets.tgz&#39;)
+    with cd(&#39;/var/www/myapp/&#39;):
+        run(&#39;tar xzf /tmp/assets.tgz&#39;)
+</pre></div>
+</div>
+<p>接続という観点からどのようなことが起こっているのか順に見て行きましょう:</p>
+<ol class="arabic simple">
+<li><p class="first">2つの <a class="reference internal" href="../api/core/operations.html#fabric.operations.local" title="fabric.operations.local"><tt class="xref py py-obj docutils literal"><span class="pre">local</span></tt></a> 呼び出しがどんなものであれ接続をまったく行わないで実行されます</p>
+</li>
+<li><p class="first"><a class="reference internal" href="../api/core/operations.html#fabric.operations.put" title="fabric.operations.put"><tt class="xref py py-obj docutils literal"><span class="pre">put</span></tt></a> が <tt class="docutils literal"><span class="pre">host1</span></tt> へ接続するための接続キャッシュを要求します</p>
+</li>
+<li><p class="first">接続キャッシュは該当のホスト文字列用の既存の接続を見つけられなかったので、新しいSSH接続を作成し、その接続を <a class="reference internal" href="../api/core/operations.html#fabric.operations.put" title="fabric.operations.put"><tt class="xref py py-obj docutils literal"><span class="pre">put</span></tt></a> に返します</p>
+</li>
+<li><p class="first"><a class="reference internal" href="../api/core/operations.html#fabric.operations.put" title="fabric.operations.put"><tt class="xref py py-obj docutils literal"><span class="pre">put</span></tt></a> がこの接続を通じてファイルをアップロードします</p>
+</li>
+<li><p class="first">最後に、 <a class="reference internal" href="../api/core/operations.html#fabric.operations.run" title="fabric.operations.run"><tt class="xref py py-obj docutils literal"><span class="pre">run</span></tt></a> 呼び出しが同じホスト文字列への接続のためのキャッシュを要求し、既存のキャッシュされた接続を自身の利用のために与えます</p>
+</li>
+</ol>
+<p>以上を基に推察すると、ネットワーク関連の操作を伴わないタスクは実際にどのような接続も始めないことがお分かりになるでしょう(ただし、もしあればですが、ホストリスト内の各ホストに一度実行されます)。</p>
+</div>
+<div class="section" id="closing-connections">
+<h3>接続の解除<a class="headerlink" href="#closing-connections" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>Fabricの接続キャッシュは接続自身を閉じることはありません。どのように使われていてもそのままにしておきます。 <a class="reference internal" href="fab.html"><em>fab</em></a> ツールがその状態を保持し、すべての開いている接続に対して繰り返し処理を行い、プログラムから抜け出る直前に(タスクの成功、不成功に関わらず)それらの接続を閉じます。</p>
+<p>ライブラリのユーザーは、自分のプログラムから抜け出る前にすべての開いている接続を確実に閉じるようにする必要が有ります。これは、自分のスクリプトの最後で <a class="reference internal" href="../api/core/network.html#fabric.network.disconnect_all" title="fabric.network.disconnect_all"><tt class="xref py py-obj docutils literal"><span class="pre">disconnect_all</span></tt></a> を呼び出すことによって実施可能です。</p>
+<div class="admonition note">
+<p class="first admonition-title">ノート</p>
+<p class="last"><a class="reference internal" href="../api/core/network.html#fabric.network.disconnect_all" title="fabric.network.disconnect_all"><tt class="xref py py-obj docutils literal"><span class="pre">disconnect_all</span></tt></a> は将来的にはよりパブリックな場所に移動されるかもしれません。わたしたちは、Fabricのライブラリとしての側面をより堅固に、より整理されたものへしようと作業をしています。</p>
+</div>
+</div>
+<div class="section" id="multiple-connection-attempts-and-skipping-bad-hosts">
+<h3>複数回接続の試みとうまくいかないホストのスキップ<a class="headerlink" href="#multiple-connection-attempts-and-skipping-bad-hosts" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>Fabric 1.4では、エラーを伴った中止の前に、リモートサーバーへの接続が複数回試行されるかもしれません。Fabricはあきらめる前に <a class="reference internal" href="env.html#connection-attempts"><em>env.connection_attempts</em></a> での回数分、毎回 <a class="reference internal" href="env.html#timeout"><em>env.timeout</em></a> で指定された秒数のタイムアウトまで接続をトライします(これらの値は、現行では以前の挙動に合わせるためデフォルトで1回と10秒になっていますが、必要に応じて安全に変更かのうです)。</p>
+<p>さらに、サーバへの接続の完全な失敗が完全にハード的な停止ではない場合でも set <a class="reference internal" href="env.html#skip-bad-hosts"><em>env.skip_bad_hosts</em></a> を <tt class="docutils literal"><span class="pre">True</span></tt> にすれば大抵の場合(通常は初期接続)でFabricは中止をする代わりに単に警告を発し、タスクの実行を続けます。</p>
+<div class="versionadded">
+<p><span class="versionmodified">バージョン 1.4 で追加.</span></p>
+</div>
+</div>
+</div>
+<div class="section" id="password-management">
+<span id="id4"></span><h2>パスワード管理<a class="headerlink" href="#password-management" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>Fabricはメモリー上に2層のパスワードキャッシュを保持し、特定の状況でのログインとsudoのパスワードを記憶します。これにより、複数システムで同じパスワードを共有しているとき <a class="footnote-reference" href="#id6" id="id5">[1]</a> やリモートシステムの <tt class="docutils literal"><span class="pre">sudo</span></tt> 設定が自身のパスワードをキャッシュしない時に退屈な再入力を避けるのに役立ちます。</p>
+<p>最初の層は単純なデフォルトもしくはフォールバックのパスワードのキャッシュ、 <a class="reference internal" href="env.html#password"><em>env.password</em></a> です(これは <a class="reference internal" href="fab.html#cmdoption-p"><em class="xref std std-option">--password</em></a> もしくは <a class="reference internal" href="fab.html#cmdoption-I"><em class="xref std std-option">--initial-password-prompt</em></a> 経由のコマンドラインでも設定可能です)。このenv変数は(空でない場合に)特定のホストのキャッシュ(下を参照)がカレントの <a class="reference internal" href="env.html#host-string"><em>ホスト文字列</em></a> 用のエントリを持っていない時に試される一つのパスワードを保持します。</p>
+<p><a class="reference internal" href="env.html#passwords"><em>env.passwords</em></a> (複数形!) はユーザーごと/ホストごとのキャッシュとして利用され、ユーザー/ホスト/ポートの各組み合わせごとにもっとも最近入力されたパスワードを保持します。このキャッシュのおかげで同一セッションでの複数の異なるユーザーおよび/またはホストへの接続で、それぞれ一度のパスワード入力だけで済ますことができます。(Fabricの以前のバージョンでは単一のデフォルトパスワードのキャッシュのみしか利用できなかったため、その前に入力されたパスワードは毎回無効になり、パスワードの再入力が必要になっていました)</p>
+<p>設定やセッションが接続するホストの数にもよりますが、このenv変数のどちらかもしくは両方を設定すると便利でしょう。とは言え、Fabricは必要に応じて追加の設定なしでも自動的にこれらを入力します。</p>
+<p>特に、ユーザーにパスワードプロンプトが表示されるたびに、入力された値は単一のデフォルトパスワードキャッシュと <tt class="docutils literal"><span class="pre">env.host_string</span></tt> のカレントの値のためのキャッシュの値の両方のアップデートに使われます。</p>
+<table class="docutils footnote" frame="void" id="id6" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id5">[1]</a></td><td><p class="first last">同一のパスワード設定に頼るよりもSSHの <a class="reference external" href="http://ja.wikipedia.org/wiki/%E5%85%AC%E9%96%8B%E9%8D%B5%E6%9A%97%E5%8F%B7">鍵ベースのアクセス</a> の利用を強くおすすめします。こちらのほうがかなり安全です。</p>
+</td></tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="leveraging-native-ssh-config-files">
+<span id="ssh-config"></span><h2>ネイティブのSSH configファイルの活用<a class="headerlink" href="#leveraging-native-ssh-config-files" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>コマンドラインのSSHクライアント( <a class="reference external" href="http://openssh.org">OpenSSH</a> によって提供されているものなど)は、通常は <tt class="docutils literal"><span class="pre">ssh_config</span></tt> として知られる特定の設定フォーマットを利用し、プラットフォーム特有の場所の <tt class="docutils literal"><span class="pre">$HOME/.ssh/config</span></tt> (もしくは <a class="reference internal" href="fab.html#cmdoption--ssh-config-path"><em class="xref std std-option">--ssh-config-path</em></a>/<a class="reference internal" href="env.html#ssh-config-path"><em>env.ssh_config_path</em></a> に与えられる任意のパス)にあるファイルからそれを読み込みます。このファイルはデフォルトもしくはホストごとのユーザ名、ホスト名のエイリアス、その他設定の切り替え( <a class="reference internal" href="env.html#forward-agent"><em>エージェントフォワーディング</em></a> を利用するか否かなど)など、さまざまなSSHオプションの設定を可能にします。</p>
+<p>FabricのSSH実装では、実際にSSH configファイルがあればそこからこれらのオプションのサブセットを読み込むことが可能です。この挙動は後方互換性のためにデフォルトでは有効になっていませんが、お使いのfabfileの一番上で <a class="reference internal" href="env.html#use-ssh-config"><em>env.use_ssh_config</em></a> を <tt class="docutils literal"><span class="pre">True</span></tt> にすることによって有効にすることができます。</p>
+<p>これを有効にすると、次のSSH config指示が読み込まれ、Fabricによって履行されます:</p>
+<ul>
+<li><p class="first"><tt class="docutils literal"><span class="pre">User</span></tt> と <tt class="docutils literal"><span class="pre">Port</span></tt> は、次の方法で他に指定されない限り、適切な接続パラメータに利用されます:</p>
+<ul class="simple">
+<li><p class="first">グローバルに指定された <tt class="docutils literal"><span class="pre">User</span></tt>/<tt class="docutils literal"><span class="pre">Port</span></tt> は、該当のenv変数がセットされていなければ、カレントの初期値(それぞれローカルのユーザー名と22)の代わりに利用されます。</p>
+</li>
+<li><p class="first">しかし、 <a class="reference internal" href="env.html#user"><em>env.user</em></a>/<a class="reference internal" href="env.html#port"><em>env.port</em></a> が <em>セットされていれば</em> 、グローバルの <tt class="docutils literal"><span class="pre">User</span></tt>/<tt class="docutils literal"><span class="pre">Port</span></tt> の値をオーバーライドします。</p>
+</li>
+<li><p class="first">ホスト文字列自身の User/port の値(例えば``hostname:222``)は <tt class="docutils literal"><span class="pre">ssh_config</span></tt> の値を含むすべてをオーバーライドします。</p>
+</li>
+</ul>
+</li>
+<li><p class="first">通常の <tt class="docutils literal"><span class="pre">ssh</span></tt> と同じように <tt class="docutils literal"><span class="pre">HostName</span></tt> は与えられたホスト名で置き換えられます。 <tt class="docutils literal"><span class="pre">HostName</span> <span class="pre">example.com</span></tt> を指定している <tt class="docutils literal"><span class="pre">Host</span> <span class="pre">foo</span></tt> のエントリーは、Fabricにホスト名 <tt class="docutils literal"><span class="pre">'foo'</span></tt> を与えることができ、接続時に <tt class="docutils literal"><span class="pre">'example.com'</span></tt> に展開されます。</p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">IdentityFile</span></tt> は <a class="reference internal" href="env.html#key-filename"><em>env.key_filename</em></a> を(置き換えるのではなく)拡張します。</p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">ForwardAgent</span></tt> は &#8220;OR(論理和)&#8221; 方式で <a class="reference internal" href="env.html#forward-agent"><em>env.forward_agent</em></a> を補完します。どちらかが真の値にセットされていれば、エージェントフォワーディングは有効になります。</p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">ProxyCommand</span></tt> は通常の <tt class="docutils literal"><span class="pre">ssh</span></tt> と同じようにホスト接続でのプロキシコマンドを動作させます。</p>
+<div class="admonition note">
+<p class="first admonition-title">ノート</p>
+<p class="last">もしSSHのトラフィックをゲートウェイに送るだけなら、ゲートウェイとして <tt class="docutils literal"><span class="pre">ProxyCommand</span></tt> を使う通常の <tt class="docutils literal"><span class="pre">ssh</span> <span class="pre">gatewayhost</span> <span class="pre">nc</span> <span class="pre">%h</span> <span class="pre">%p</span></tt> 方式よりも <a class="reference internal" href="env.html#gateway"><em>env.gateway</em></a> の方がより効率的な接続方法です。</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">ノート</p>
+<p>もしSSH configファイルが <tt class="docutils literal"><span class="pre">ProxyCommand</span></tt> を含んでいて <em>なおかつ</em> <a class="reference internal" href="env.html#gateway"><em>env.gateway</em></a> が <tt class="docutils literal"><span class="pre">None</span></tt> 以外の値にセットされている場合、<tt class="docutils literal"><span class="pre">env.gateway</span></tt> が優先され <tt class="docutils literal"><span class="pre">ProxyCommand</span></tt> は無視されます。</p>
+<p class="last">もしすでにSSH configファイルが作成されていれば、confファイルの内容全体で対処するよりも <tt class="docutils literal"><span class="pre">env.gateway</span></tt> (例えば <a class="reference internal" href="../api/core/context_managers.html#fabric.context_managers.settings" title="fabric.context_managers.settings"><tt class="xref py py-obj docutils literal"><span class="pre">settings</span></tt></a> 経由で)を修正するほうが容易でしょう。</p>
+</div>
+</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+
+
+<h3>Project Versions</h3>
+<ul id="sidebar_versions">
+    
+    
+    <li><a href="/en/1.8.0/">1.8.0</a></li>
+    
+    
+    
+    <li><a href="/en/1.7.0/">1.7.0</a></li>
+    
+    
+    
+    <li><a href="/en/1.6.2/">1.6.2</a></li>
+    
+    
+    
+    <li><a href="/en/1.6.1/">1.6.1</a></li>
+    
+    
+    
+    <li><a href="/en/1.6.0/">1.6.0</a></li>
+    
+    
+    
+    <li><a href="/en/1.5.4/">1.5.4</a></li>
+    
+    
+    
+    <li><a href="/en/1.5.3/">1.5.3</a></li>
+    
+    
+    
+    <li><a href="/en/1.5.2/">1.5.2</a></li>
+    
+    
+    
+    <li><a href="/en/1.5.1/">1.5.1</a></li>
+    
+    
+    
+    <li><a href="/en/1.5.0/">1.5.0</a></li>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+</ul>
+
+
+  <h3><a href="../index.html">目次</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">実行モデル</a><ul>
+<li><a class="reference internal" href="#execution-strategy">実行ストラテジー</a></li>
+<li><a class="reference internal" href="#defining-tasks">タスクの定義</a></li>
+<li><a class="reference internal" href="#defining-host-lists">ホストリストの定義</a><ul>
+<li><a class="reference internal" href="#hosts">ホスト</a></li>
+<li><a class="reference internal" href="#roles">ロール</a></li>
+<li><a class="reference internal" href="#how-host-lists-are-constructed">ホストリストがどのように作られるか</a><ul>
+<li><a class="reference internal" href="#globally-via-env"><tt class="docutils literal"><span class="pre">env</span></tt> 経由でグローバルに</a></li>
+<li><a class="reference internal" href="#globally-via-the-command-line">コマンドライン経由でグローバルに</a></li>
+<li><a class="reference internal" href="#per-task-via-the-command-line">コマンドライン経由でタスクごとに</a></li>
+<li><a class="reference internal" href="#per-task-via-decorators">デコレーター経由でタスクごとに</a></li>
+<li><a class="reference internal" href="#order-of-precedence">優先順位</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#combining-host-lists">ホストリストの結合</a></li>
+<li><a class="reference internal" href="#host-list-deduplication">ホストリストの重複</a></li>
+<li><a class="reference internal" href="#excluding-specific-hosts">特定のホストの除外</a><ul>
+<li><a class="reference internal" href="#combining-exclusions">除外の結合</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#intelligently-executing-tasks-with-execute"><tt class="docutils literal"><span class="pre">execute</span></tt> での賢いタスクの実行</a><ul>
+<li><a class="reference internal" href="#leveraging-execute-to-access-multi-host-results">マルチホストの結果へのアクセスに <tt class="docutils literal"><span class="pre">execute</span></tt> を活用する</a></li>
+<li><a class="reference internal" href="#using-execute-with-dynamically-set-host-lists">ホストリストの動的セットとの <tt class="docutils literal"><span class="pre">execute</span></tt> の利用</a><ul>
+<li><a class="reference internal" href="#the-alternate-approach">別のアプローチ</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#failure-handling">失敗の扱い</a></li>
+<li><a class="reference internal" href="#connections">接続</a><ul>
+<li><a class="reference internal" href="#lazy-connections">レイジーな接続</a></li>
+<li><a class="reference internal" href="#closing-connections">接続の解除</a></li>
+<li><a class="reference internal" href="#multiple-connection-attempts-and-skipping-bad-hosts">複数回接続の試みとうまくいかないホストのスキップ</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#password-management">パスワード管理</a></li>
+<li><a class="reference internal" href="#leveraging-native-ssh-config-files">ネイティブのSSH configファイルの活用</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="env.html"
+                        title="前の章へ">The environment dictionary, <tt class="docutils literal"><span class="pre">env</span></tt></a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="fab.html"
+                        title="次の章へ"><tt class="docutils literal"><span class="pre">fab</span></tt> options and arguments</a></p>
+  <h3>このページ</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/usage/execution.txt"
+           rel="nofollow">ソースコードを表示</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>クイック検索</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="検索" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    モジュール、クラス、または関数名を入力してください
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="fab.html" title="fab options and arguments"
+             >次へ</a> |</li>
+        <li class="right" >
+          <a href="env.html" title="The environment dictionary, env"
+             >前へ</a> |</li>
+        <li><a href="../index.html">Fabric 1.8.1 ドキュメント</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Christian Vest Hansen and Jeffrey E. Forcier.
+      このドキュメントは <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.1 で生成しました。
+    </div>
+  </body>
+</html>
